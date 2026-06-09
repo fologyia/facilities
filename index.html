@@ -7,9 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Centro</title>
-  
   <link rel="manifest" href="manifest.json" />
-  
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -25,6 +23,8 @@
       --accent-dim:#004D31;
       --exit:      #FF5C5C;
       --exit-dim:  #4D1C1C;
+      --warn:      #F5A623;
+      --warn-dim:  #4D3200;
       --text:      #E8EAF0;
       --muted:     #6B7280;
       --mono:      'Roboto Mono', monospace;
@@ -40,7 +40,6 @@
       overflow-x: hidden;
     }
 
-    /* ── SHELL ── */
     .shell {
       display: flex;
       flex-direction: column;
@@ -50,148 +49,183 @@
       padding: 0 0 80px;
     }
 
-    /* ── SPLASH SCREEN (FLICKER MITIGATION) ── */
+    /* ── SPLASH ── */
     .splash-overlay {
-      position: fixed;
-      inset: 0;
-      background: var(--bg);
-      z-index: 120;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      position: fixed; inset: 0; background: var(--bg); z-index: 120;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
     .spinner {
-      width: 40px;
-      height: 40px;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      width: 40px; height: 40px;
+      border: 3px solid var(--border); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── TELA DE LOGIN OVERLAY ── */
+    /* ── LOGIN ── */
     .login-overlay {
-      position: fixed;
-      inset: 0;
-      background: var(--bg);
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 30px;
-      max-width: 480px;
-      margin: 0 auto;
-      display: none;
+      position: fixed; inset: 0; background: var(--bg); z-index: 100;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      padding: 30px; max-width: 480px; margin: 0 auto;
     }
     .login-card {
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 24px;
-      text-align: center;
+      width: 100%; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 28px; text-align: center;
     }
+    .login-logo { font-size: 32px; margin-bottom: 12px; }
     .login-card h2 { font-size: 20px; margin-bottom: 6px; font-weight: 600; }
-    .login-card p { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+    .login-card p { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
     .login-input {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      padding: 14px 16px;
-      border-radius: 12px;
-      color: var(--text);
-      font-family: var(--sans);
-      font-size: 14px;
-      margin-bottom: 12px;
-      outline: none;
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      padding: 14px 16px; border-radius: 12px; color: var(--text);
+      font-family: var(--sans); font-size: 14px; margin-bottom: 12px; outline: none;
+      transition: border-color 0.15s;
     }
     .login-input:focus { border-color: var(--accent); }
     .btn-login {
-      width: 100%;
-      padding: 14px;
-      background: var(--accent);
-      color: #000;
-      border: none;
-      border-radius: 12px;
-      font-family: var(--sans);
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 8px;
+      width: 100%; padding: 14px; background: var(--accent); color: #000;
+      border: none; border-radius: 12px; font-family: var(--sans);
+      font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px;
+      transition: opacity 0.15s;
     }
+    .btn-login:active { opacity: 0.8; }
+    .login-error { font-size: 12px; color: var(--exit); margin-top: 10px; display: none; }
 
-    /* ── VIEWS MANAGEMENT ── */
+    /* ── VIEWS ── */
     .app-view { display: none; }
     .app-view.active-view { display: block; }
 
     /* ── HEADER ── */
     header {
       padding: 20px 20px 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
     }
     .app-title { font-size: 11px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
-    .module-badge { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); background: var(--accent-dim); padding: 3px 8px; border-radius: 20px; }
-
-    /* ── CLOCK HERO ── */
-    .clock-block { padding: 28px 20px 20px; text-align: center; }
-    .live-time { 
-      font-family: var(--mono); 
-      font-size: clamp(52px, 16vw, 72px); 
-      font-weight: 300; 
-      letter-spacing: -0.02em; 
-      color: var(--text); 
-      line-height: 1;
+    .header-right { display: flex; align-items: center; gap: 8px; }
+    .module-badge {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--accent); background: var(--accent-dim); padding: 3px 8px; border-radius: 20px;
     }
-    .live-time .colon { animation: blink 1s step-end infinite; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.15} }
-    .live-date { margin-top: 8px; font-size: 13px; color: var(--muted); letter-spacing: 0.04em; }
+    .conn-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--muted);
+      transition: background 0.3s;
+    }
+    .conn-dot.online { background: var(--accent); }
+    .conn-dot.offline { background: var(--warn); }
 
-    /* ── ACTION BUTTONS (BOTÃO ÚNICO) ── */
+    /* ── CLOCK HERO (FIX DE ALINHAMENTO E CENTRALIZAÇÃO SIMÉTRICA) ── */
+    .clock-block { padding: 28px 20px 20px; text-align: center; }
+    .live-time {
+      font-family: var(--mono); font-size: clamp(52px, 16vw, 72px);
+      font-weight: 300; letter-spacing: -0.02em; color: var(--text); line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .live-time .colon { 
+      animation: blink 1s step-end infinite; 
+      display: inline-block; 
+      width: 0.3em; 
+      text-align: center; 
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.15} }
+    .live-date { margin-top: 12px; font-size: 13px; color: var(--muted); letter-spacing: 0.04em; }
+
+    /* ── ACTION BUTTON ── */
     .actions { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 0 20px 24px; }
     .btn-ponto {
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 24px 16px; border: none; border-radius: 16px; cursor: pointer; font-family: var(--sans); transition: transform 0.1s, opacity 0.1s, background-color 0.2s; -webkit-user-select: none; user-select: none; width: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; padding: 24px 16px; border: none; border-radius: 16px; cursor: pointer;
+      font-family: var(--sans); transition: transform 0.1s, opacity 0.1s, background-color 0.2s;
+      -webkit-user-select: none; user-select: none; width: 100%;
     }
     .btn-ponto:active { transform: scale(0.97); opacity: 0.85; }
     .btn-ponto.btn-entrada { background: var(--accent); color: #000; }
-    .btn-ponto.btn-saida { background: var(--exit); color: #fff; }
-    .btn-ponto .icon { font-size: 26px; line-height: 1; }
-    .btn-ponto .label { font-size: 14px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+    .btn-ponto.btn-saida   { background: var(--exit); color: #fff; }
+    .btn-ponto.btn-loading { background: var(--surface2); color: var(--muted); cursor: not-allowed; }
+    .btn-ponto .icon   { font-size: 26px; line-height: 1; }
+    .btn-ponto .label  { font-size: 14px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
     .btn-ponto .sublabel { font-size: 11px; opacity: 0.75; font-family: var(--mono); }
 
-    /* ── CARDS CONFIGURATIONS (PONTO & TAREFAS) ── */
-    .today-card { margin: 0 20px 20px; background: var(--surface); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
-    .today-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+    /* ── CARDS (FIX DE ALINHAMENTO DA TABELA) ── */
+    .today-card {
+      margin: 0 20px 20px; background: var(--surface);
+      border-radius: 16px; border: 1px solid var(--border); overflow: hidden;
+    }
+    .today-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
+    }
     .today-title { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
     .today-total { font-family: var(--mono); font-size: 13px; color: var(--accent); }
     .registros-list { list-style: none; }
-    .registro-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); gap: 10px; }
+    .registro-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; border-bottom: 1px solid var(--border); gap: 10px;
+    }
     .registro-item:last-child { border-bottom: none; }
-    
     .registro-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
     .tipo-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .tipo-dot.entrada { background: var(--accent); }
     .tipo-dot.saida   { background: var(--exit); }
+    .tipo-dot.tarefa  { background: var(--warn); }
     .tipo-label { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-    .task-text { font-size: 14px; color: var(--text); word-break: break-word; }
+    .task-text { font-size: 14px; color: var(--text); word-break: break-word; line-height: 1.4; }
+    .task-ts   { font-size: 11px; color: var(--muted); font-family: var(--mono); white-space: nowrap; }
     
-    .registro-hora { font-family: var(--mono); font-size: 15px; font-weight: 600; min-width: 60px; text-align: right; margin-right: 4px; }
+    .registro-hora { 
+      font-family: var(--mono); font-size: 15px; font-weight: 600; 
+      min-width: 60px; text-align: right; margin-right: 4px; flex-shrink: 0;
+    }
     .registro-hora.entrada { color: var(--accent); }
     .registro-hora.saida   { color: var(--exit); }
-    .btn-del { background: none; border: none; cursor: pointer; padding: 4px 6px; color: var(--muted); font-size: 16px; line-height: 1; border-radius: 6px; transition: color 0.15s, background 0.15s; flex-shrink: 0; }
+    .btn-del {
+      background: none; border: none; cursor: pointer; padding: 6px 8px;
+      color: var(--muted); font-size: 16px; line-height: 1; border-radius: 8px;
+      transition: color 0.15s, background 0.15s; flex-shrink: 0;
+    }
     .btn-del:active { color: var(--exit); background: var(--exit-dim); }
-    .btn-del.btn-check:active { color: var(--accent); background: var(--accent-dim); }
-    .empty-state { padding: 28px 16px; text-align: center; color: var(--muted); font-size: 13px; }
+    .btn-check { color: var(--accent) !important; font-size: 18px !important; font-weight: bold; }
+    .btn-check:active { color: var(--accent) !important; background: var(--accent-dim) !important; }
+    .empty-state { padding: 32px 16px; text-align: center; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .empty-icon { font-size: 28px; display: block; margin-bottom: 8px; }
 
-    /* ── HISTORY ── */
-    .section-title { padding: 4px 20px 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; justify-content: space-between; }
-    .btn-export { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); background: none; border: 1px solid var(--accent-dim); padding: 4px 10px; border-radius: 20px; cursor: pointer; font-family: var(--sans); }
+    /* ── TASK INPUT ── */
+    .task-input-wrap { display: flex; gap: 10px; padding: 14px 16px; }
+    .task-input-field {
+      flex: 1; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px 14px; color: var(--text); outline: none;
+      font-family: var(--sans); font-size: 14px; transition: border-color 0.15s;
+    }
+    .task-input-field:focus { border-color: var(--accent); }
+    .task-input-field::placeholder { color: var(--muted); }
+    .btn-add-task {
+      background: var(--accent); color: #000; border: none; border-radius: 12px;
+      padding: 0 18px; font-weight: 700; cursor: pointer; font-family: var(--sans);
+      font-size: 20px; line-height: 1; transition: opacity 0.15s; flex-shrink: 0;
+    }
+    .btn-add-task:active { opacity: 0.75; }
+    .task-badge {
+      position: absolute; top: 6px; right: 10px;
+      background: var(--accent); color: #000;
+      font-size: 9px; font-weight: 700; min-width: 16px; height: 16px;
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      padding: 0 4px; display: none;
+    }
+
+    /* ── HISTÓRICO ── */
+    .section-title {
+      padding: 4px 20px 10px; font-size: 12px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .btn-export {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--accent); background: none; border: 1px solid var(--accent-dim);
+      padding: 4px 10px; border-radius: 20px; cursor: pointer; font-family: var(--sans);
+    }
     .history-card { margin: 0 20px 12px; background: var(--surface); border-radius: 14px; border: 1px solid var(--border); overflow: hidden; }
-    .history-day-header { display: flex; align-items: center; justify-content: space-between; padding: 11px 16px; cursor: pointer; -webkit-user-select: none; user-select: none; }
+    .history-day-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 16px; cursor: pointer; -webkit-user-select: none; user-select: none;
+    }
     .history-day-header:hover { background: var(--surface2); }
     .day-label { font-size: 13px; font-weight: 500; }
     .day-meta { display: flex; align-items: center; gap: 10px; }
@@ -201,30 +235,94 @@
     .history-day-body { display: none; border-top: 1px solid var(--border); }
     .history-day-body.open { display: block; }
 
-    /* ── PLACEHOLDER MÓDULOS ── */
-    .placeholder-view { padding: 40px 20px; text-align: center; color: var(--muted); }
-    .placeholder-view .icon { font-size: 48px; margin-bottom: 12px; display: block; }
-    .btn-logout { background: var(--exit-dim); color: var(--exit); border: 1px solid var(--exit); padding: 10px 20px; border-radius: 10px; font-family: var(--sans); font-weight: 600; margin-top: 20px; cursor: pointer; }
+    /* ── RESUMO ── */
+    .resumo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 16px; display: flex; flex-direction: column; gap: 4px;
+    }
+    .stat-card.wide { grid-column: 1 / -1; }
+    .stat-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    .stat-value { font-family: var(--mono); font-size: 28px; font-weight: 300; color: var(--text); }
+    .stat-sub { font-size: 12px; color: var(--muted); }
+
+    /* ── CONFIG ── */
+    .config-section { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .config-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px;
+    }
+    .config-card h4 { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .config-card p  { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .config-email { font-family: var(--mono); font-size: 12px; color: var(--accent); margin-top: 6px; }
+    .btn-logout {
+      width: 100%; padding: 12px; background: var(--exit-dim); color: var(--exit);
+      border: 1px solid var(--exit); border-radius: 12px; font-family: var(--sans);
+      font-weight: 600; font-size: 14px; margin-top: 4px; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-logout:active { opacity: 0.75; }
 
     /* ── TOAST ── */
-    #toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 10px 20px; border-radius: 30px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none; white-space: nowrap; z-index: 99; }
+    #toast {
+      position: fixed; bottom: 90px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); padding: 10px 20px; border-radius: 30px;
+      font-size: 13px; font-weight: 500; opacity: 0;
+      transition: opacity 0.2s, transform 0.2s; pointer-events: none;
+      white-space: nowrap; z-index: 99;
+    }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #toast.success { border-color: var(--accent-dim); color: var(--accent); }
+    #toast.error   { border-color: var(--exit-dim); color: var(--exit); }
 
     /* ── MODAL ── */
-    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 50; align-items: flex-end; justify-content: center; }
+    .modal-backdrop {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+      z-index: 50; align-items: flex-end; justify-content: center;
+    }
     .modal-backdrop.open { display: flex; }
-    .modal { background: var(--surface); border-radius: 20px 20px 0 0; border: 1px solid var(--border); border-bottom: none; padding: 24px 20px 40px; width: 100%; max-width: 480px; }
+    .modal {
+      background: var(--surface); border-radius: 20px 20px 0 0;
+      border: 1px solid var(--border); border-bottom: none;
+      padding: 24px 20px 40px; width: 100%; max-width: 480px;
+    }
     .modal h3 { font-size: 16px; margin-bottom: 16px; }
-    .modal textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: var(--mono); font-size: 12px; padding: 12px; resize: none; height: 220px; line-height: 1.7; outline: none; }
+    .modal textarea {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text); font-family: var(--mono);
+      font-size: 12px; padding: 12px; resize: none; height: 220px;
+      line-height: 1.7; outline: none;
+    }
     .modal-actions { display: flex; gap: 10px; margin-top: 14px; }
-    .btn-copy { flex: 1; padding: 14px; background: var(--accent); color: #000; border: none; border-radius: 12px; font-family: var(--sans); font-size: 14px; font-weight: 600; cursor: pointer; }
-    .btn-close-modal { padding: 14px 20px; background: var(--surface2); color: var(--muted); border: 1px solid var(--border); border-radius: 12px; font-family: var(--sans); font-size: 14px; cursor: pointer; }
+    .btn-copy {
+      flex: 1; padding: 14px; background: var(--accent); color: #000;
+      border: none; border-radius: 12px; font-family: var(--sans);
+      font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+    .btn-close-modal {
+      padding: 14px 20px; background: var(--surface2); color: var(--muted);
+      border: 1px solid var(--border); border-radius: 12px;
+      font-family: var(--sans); font-size: 14px; cursor: pointer;
+    }
 
     /* ── BOTTOM NAV ── */
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 68px; background: var(--surface); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-around; max-width: 480px; margin: 0 auto; }
-    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 16px; cursor: pointer; opacity: 0.4; transition: opacity 0.15s; -webkit-user-select: none; user-select: none; background: none; border: none; }
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; height: 68px;
+      background: var(--surface); border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-around;
+      max-width: 480px; margin: 0 auto;
+    }
+    .nav-item {
+      position: relative;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      padding: 8px 16px; cursor: pointer; opacity: 0.4; transition: opacity 0.15s;
+      -webkit-user-select: none; user-select: none; background: none; border: none;
+    }
     .nav-item.active { opacity: 1; }
-    .nav-item .nav-icon { font-size: 20px; line-height: 1; }
+    .nav-item .nav-icon  { font-size: 20px; line-height: 1; }
     .nav-item .nav-label { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
     .nav-item.active .nav-label { color: var(--accent); }
   </style>
@@ -238,18 +336,23 @@
 
 <div id="login-screen" class="login-overlay">
   <div class="login-card">
-    <h2>Centro de Facilidades</h2>
-    <p>Insira suas credenciais para sincronizar na nuvem</p>
-    <input type="email" id="login-email" class="login-input" placeholder="E-mail" />
-    <input type="password" id="login-senha" class="login-input" placeholder="Senha" />
+    <div class="login-logo">🏢</div>
+    <h2>Centro</h2>
+    <p>Insira suas credenciais para<br>sincronizar na nuvem</p>
+    <input type="email" id="login-email" class="login-input" placeholder="E-mail" autocomplete="email" />
+    <input type="password" id="login-senha" class="login-input" placeholder="Senha" autocomplete="current-password" />
     <button class="btn-login" onclick="executarLogin()">Entrar</button>
+    <p class="login-error" id="login-error">Credenciais inválidas. Tente novamente.</p>
   </div>
 </div>
 
 <div class="shell">
   <header>
     <span class="app-title">Centro</span>
-    <span class="module-badge" id="current-module-badge">Ponto</span>
+    <div class="header-right">
+      <div class="conn-dot" id="conn-dot" title="Status de conexão"></div>
+      <span class="module-badge" id="current-module-badge">Ponto</span>
+    </div>
   </header>
 
   <main id="view-ponto" class="app-view active-view">
@@ -274,7 +377,7 @@
         <span class="today-total" id="hoje-total"></span>
       </div>
       <ul class="registros-list" id="registros-hoje">
-        <li class="empty-state">Nenhum registro ainda</li>
+        <li class="empty-state"><span class="empty-icon">🕐</span>Nenhum registro ainda hoje</li>
       </ul>
     </div>
 
@@ -286,57 +389,70 @@
   </main>
 
   <main id="view-tarefas" class="app-view">
-    <div class="today-card" style="margin: 20px 20px 10px;">
+    <div class="today-card" style="margin: 20px 20px 0;">
       <div class="today-header">
         <span class="today-title">Nova Tarefa</span>
       </div>
-      <div style="display: flex; gap: 10px; padding: 14px 16px;">
-        <input type="text" id="task-input" placeholder="O que precisa ser feito?" style="flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; color: var(--text); outline: none; font-family: var(--sans); font-size: 14px;" onkeydown="if(event.key === 'Enter') adicionarTarefa()" />
-        <button onclick="adicionarTarefa()" style="background: var(--accent); color: #000; border: none; border-radius: 12px; padding: 0 18px; font-weight: 600; cursor: pointer; font-family: var(--sans); font-size: 13px; letter-spacing: 0.02em; text-transform: uppercase;">Add</button>
+      <div class="task-input-wrap">
+        <input
+          type="text"
+          id="task-input"
+          class="task-input-field"
+          placeholder="O que precisa ser feito?"
+          maxlength="200"
+        />
+        <button class="btn-add-task" onclick="adicionarTarefa()" title="Adicionar tarefa">+</button>
       </div>
     </div>
 
-    <div class="today-card" style="margin: 0 20px 20px;">
-      <div class="today-header">
-        <span class="today-title">Pendentes</span>
-      </div>
+    <div style="margin: 12px 20px 0; display: flex; align-items: center; justify-content: space-between;">
+      <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);">Pendentes</span>
+      <span id="task-count" style="font-size: 12px; color: var(--muted); font-family: var(--mono);"></span>
+    </div>
+
+    <div class="today-card" style="margin: 10px 20px 20px;">
       <ul class="registros-list" id="lista-tarefas">
-        <li class="empty-state">Nenhuma tarefa pendente</li>
+        <li class="empty-state"><span class="empty-icon">✅</span>Nenhuma tarefa pendente</li>
       </ul>
     </div>
   </main>
 
   <main id="view-resumo" class="app-view">
-    <div class="placeholder-view">
-      <span class="icon">📊</span>
-      <h3>Módulo de Resumos</h3>
-      <p style="font-size: 13px; margin-top: 8px;">Em breve: Analytics e métricas.</p>
-    </div>
+    <div class="resumo-grid" id="resumo-grid">
+      </div>
   </main>
 
   <main id="view-config" class="app-view">
-    <div class="placeholder-view">
-      <span class="icon">⚙️</span>
-      <h3>Configurações</h3>
-      <p style="font-size: 13px; margin-top: 8px;">Usuário conectado com persistência em nuvem.</p>
-      <button class="btn-logout" onclick="executarLogout()">Desconectar Conta</button>
+    <div class="config-section">
+      <div class="config-card">
+        <h4>Conta conectada</h4>
+        <p class="config-email" id="config-email">—</p>
+        <p style="margin-top: 8px; font-size: 12px; color: var(--muted);">Dados sincronizados com Firebase Realtime Database. Registros disponíveis em qualquer dispositivo.</p>
+      </div>
+      <div class="config-card">
+        <h4>Sobre o Centro</h4>
+        <p>Marcador de ponto e lista de tarefas com sincronização em nuvem. Os dados são armazenados exclusivamente na sua conta.</p>
+      </div>
+      <button class="btn-logout" onclick="executarLogout()">Desconectar desta conta</button>
     </div>
   </main>
+</div>
 
-</div><nav class="bottom-nav">
-  <button class="nav-item active" onclick="switchView('ponto', 'Ponto', this)">
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="switchView('ponto','Ponto',this)">
     <span class="nav-icon">🕐</span>
     <span class="nav-label">Ponto</span>
   </button>
-  <button class="nav-item" onclick="switchView('tarefas', 'Tarefas', this)">
+  <button class="nav-item" onclick="switchView('tarefas','Tarefas',this)">
     <span class="nav-icon">📋</span>
     <span class="nav-label">Tarefas</span>
+    <span class="task-badge" id="task-nav-badge"></span>
   </button>
-  <button class="nav-item" onclick="switchView('resumo', 'Resumo', this)">
+  <button class="nav-item" onclick="switchView('resumo','Resumo',this)">
     <span class="nav-icon">📊</span>
     <span class="nav-label">Resumo</span>
   </button>
-  <button class="nav-item" onclick="switchView('config', 'Config', this)">
+  <button class="nav-item" onclick="switchView('config','Config',this)">
     <span class="nav-icon">⚙️</span>
     <span class="nav-label">Config</span>
   </button>
@@ -360,312 +476,410 @@
   import { getDatabase, ref, push, set, get, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-  // Cole suas credenciais reais aqui do Firebase
   const firebaseConfig = {
-  apiKey: "AIzaSyCAZ33yjFhdAa1u4tGGiKSUMtNlKaWCegs",
-  authDomain: "fology-4a52e.firebaseapp.com",
-  databaseURL: "https://fology-4a52e-default-rtdb.firebaseio.com",
-  projectId: "fology-4a52e",
-  storageBucket: "fology-4a52e.firebasestorage.app",
-  messagingSenderId: "334156069060",
-  appId: "1:334156069060:web:a020599159804583357191",
-  measurementId: "G-M5D8W65TJN"
-};
+    apiKey: "AIzaSyCAZ33yjFhdAa1u4tGGiKSUMtNlKaWCegs",
+    authDomain: "fology-4a52e.firebaseapp.com",
+    databaseURL: "https://fology-4a52e-default-rtdb.firebaseio.com",
+    projectId: "fology-4a52e",
+    storageBucket: "fology-4a52e.firebasestorage.app",
+    messagingSenderId: "334156069060",
+    appId: "1:334156069060:web:a020599159804583357191",
+    measurementId: "G-M5D8W65TJN"
+  };
 
   const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+  const db  = getDatabase(app);
   const auth = getAuth(app);
 
-  const STORAGE_KEY_PONTO = 'centro_ponto_v2_logs';
-  const STORAGE_KEY_TAREFAS = 'centro_tarefas_v1';
-  
-  let dadosApp = {}; 
-  let tarefasApp = {};
-  let usuarioLogadoId = null;
+  const STORAGE_KEY_PONTO   = 'centro_ponto_v2_logs';
+  const STORAGE_KEY_TAREFAS = 'centro_tarefas_v2';
 
-  // ── INFRASTRUCTURE: HYBRID STORAGE ARCHITECTURE ──────────
+  let dadosApp   = {};
+  let tarefasApp = {};
+  let usuarioAtual = null;   
+  let isSyncing  = false;
+
+  // ── CACHE LOCAL ──────────────────────────────────────────
+  function salvarCacheLocal() {
+    try { localStorage.setItem(STORAGE_KEY_PONTO,   JSON.stringify(dadosApp));   } catch {}
+    try { localStorage.setItem(STORAGE_KEY_TAREFAS, JSON.stringify(tarefasApp)); } catch {}
+  }
+
   function carregarCacheLocal() {
-    try { dadosApp = JSON.parse(localStorage.getItem(STORAGE_KEY_PONTO)) || {}; } catch { dadosApp = {}; }
+    try { dadosApp   = JSON.parse(localStorage.getItem(STORAGE_KEY_PONTO))   || {}; } catch { dadosApp   = {}; }
     try { tarefasApp = JSON.parse(localStorage.getItem(STORAGE_KEY_TAREFAS)) || {}; } catch { tarefasApp = {}; }
   }
 
+  // ── SINCRONIZAÇÃO COM FIREBASE ────────────────────────────
   async function sincronizarBancoRemoto() {
-    if (!usuarioLogadoId) return;
-    
-    // Processamento de Logs do Ponto
+    if (!usuarioAtual || isSyncing) return;
+    isSyncing = true;
+    setConnDot('online');
+
     try {
-      const snapshotPonto = await get(ref(db, `usuarios/${usuarioLogadoId}/logs`));
+      // ── Ponto ──
+      const snapshotPonto = await get(ref(db, `usuarios/${usuarioAtual.uid}/logs`));
       const dadosAgrupados = {};
       if (snapshotPonto.exists()) {
         const logsRaw = snapshotPonto.val();
-        const logsOrdenados = Object.keys(logsRaw).map(key => ({ key, ...logsRaw[key] })).sort((a, b) => (a.ts || 0) - (b.ts || 0));
-        
+        const logsOrdenados = Object.keys(logsRaw)
+          .map(key => ({ key, ...logsRaw[key] }))
+          .filter(item => item.ts)               
+          .sort((a, b) => a.ts - b.ts);
+
         logsOrdenados.forEach(item => {
-          if (!item.ts) return;
           const d = new Date(item.ts);
           const dataStr = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
           const horaStr = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-          
           if (!dadosAgrupados[dataStr]) dadosAgrupados[dataStr] = [];
           dadosAgrupados[dataStr].push({ tipo: item.tipo, hora: horaStr, ts: item.ts, key: item.key });
         });
       }
       dadosApp = dadosAgrupados;
-      localStorage.setItem(STORAGE_KEY_PONTO, JSON.stringify(dadosApp));
-    } catch (err) { console.warn("Modo offline ativo para histórico de pontos."); }
 
-    // Processamento de Tarefas
-    try {
-      const snapshotTarefas = await get(ref(db, `usuarios/${usuarioLogadoId}/tarefas`));
+      // ── Tarefas ──
+      const snapshotTarefas = await get(ref(db, `usuarios/${usuarioAtual.uid}/tarefas`));
       tarefasApp = snapshotTarefas.exists() ? snapshotTarefas.val() : {};
-      localStorage.setItem(STORAGE_KEY_TAREFAS, JSON.stringify(tarefasApp));
-    } catch (err) { console.warn("Modo offline ativo para lista de tarefas."); }
+
+      salvarCacheLocal();
+    } catch (err) {
+      console.warn("Sincronização falhou, usando cache local.", err);
+      setConnDot('offline');
+    } finally {
+      isSyncing = false;
+    }
   }
 
-  // ── AUTHENTICATION LIFECYCLE ──────────────────────────────
+  function deleteLocalRecord(data, idx) {
+    if (dadosApp[data]) {
+      dadosApp[data].splice(idx, 1);
+      if (dadosApp[data].length === 0) delete dadosApp[data];
+      salvarCacheLocal();
+      renderizar();
+      renderizarResumo();
+    }
+  }
+
+  function setConnDot(state) {
+    const dot = document.getElementById('conn-dot');
+    if(dot) dot.className = 'conn-dot ' + state;
+  }
+
+  // ── AUTH LIFECYCLE ────────────────────────────────────────
   onAuthStateChanged(auth, async (user) => {
-    const loginScreen = document.getElementById('login-screen');
-    const splashScreen = document.getElementById('splash-screen');
-    
     carregarCacheLocal();
     renderizar();
     renderizarTarefas();
-    
+
     if (user) {
-      usuarioLogadoId = user.uid;
-      loginScreen.style.display = 'none';
+      usuarioAtual = user;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('config-email').textContent = user.email;
       await sincronizarBancoRemoto();
       renderizar();
       renderizarTarefas();
+      renderizarResumo();
     } else {
-      usuarioLogadoId = null;
-      loginScreen.style.display = 'flex';
+      usuarioAtual = null;
+      setConnDot('offline');
+      document.getElementById('login-screen').style.display = 'flex';
     }
-    splashScreen.style.display = 'none';
+    document.getElementById('splash-screen').style.display = 'none';
   });
 
   window.executarLogin = async function() {
-    const email = document.getElementById('login-email').value;
+    const email = document.getElementById('login-email').value.trim();
     const senha = document.getElementById('login-senha').value;
-    if (!email || !senha) { alert("Preencha todos os campos!"); return; }
+    const errEl = document.getElementById('login-error');
+    errEl.style.display = 'none';
+    if (!email || !senha) { errEl.textContent = 'Preencha todos os campos.'; errEl.style.display = 'block'; return; }
     try {
       document.getElementById('splash-screen').style.display = 'flex';
       await signInWithEmailAndPassword(auth, email, senha);
     } catch (err) {
       document.getElementById('splash-screen').style.display = 'none';
-      alert("Erro na autenticação: Verifique suas credenciais.");
+      errEl.textContent = 'Credenciais inválidas. Verifique e tente novamente.';
+      errEl.style.display = 'block';
     }
   }
 
   window.executarLogout = async function() {
-    if (confirm("Deseja realmente desconectar deste dispositivo?")) {
-      await signOut(auth);
-      localStorage.removeItem(STORAGE_KEY_PONTO);
-      localStorage.removeItem(STORAGE_KEY_TAREFAS);
-      location.reload();
-    }
+    if (!confirm("Deseja realmente desconectar deste dispositivo?")) return;
+    await signOut(auth);
+    localStorage.removeItem(STORAGE_KEY_PONTO);
+    localStorage.removeItem(STORAGE_KEY_TAREFAS);
+    location.reload();
   }
 
-  // ── APP INTERFACE ROUTING ────────────────────────────────
-  window.switchView = function(viewId, badgeLabel, navElement) {
+  // ── ROTEAMENTO DE VIEWS ───────────────────────────────────
+  window.switchView = function(viewId, badgeLabel, navEl) {
     document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active-view'));
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     document.getElementById(`view-${viewId}`).classList.add('active-view');
-    navElement.classList.add('active');
+    navEl.classList.add('active');
     document.getElementById('current-module-badge').textContent = badgeLabel;
+    if (viewId === 'resumo') renderizarResumo();
   }
 
-  // ── UTILITIES ───────────────────────────────────────────
+  // ── UTILITÁRIOS ────────────────────────────────────────────
   const DIAS_SEMANA = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-  const MESES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const MESES_ABREV = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const MESES_FULL  = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 
   function pad(n) { return String(n).padStart(2, '0'); }
 
-  function agora() {
+  function hojeStr() {
     const d = new Date();
-    return { data: `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}` };
+    return {
+      iso: `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`,
+      hora: `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+    };
   }
 
   function formatarDataHumana(dataStr) {
     const [y, m, d] = dataStr.split('-').map(Number);
-    const dt = new Date(y, m-1, d);
-    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const dt    = new Date(y, m-1, d);
+    const hoje  = new Date(); hoje.setHours(0,0,0,0);
     const ontem = new Date(hoje); ontem.setDate(hoje.getDate()-1);
-    if (dt.getTime() === hoje.getTime()) return 'Hoje';
+    if (dt.getTime() === hoje.getTime())  return 'Hoje';
     if (dt.getTime() === ontem.getTime()) return 'Ontem';
-    return `${DIAS_SEMANA[dt.getDay()]} , ${d} ${MESES[m-1]}`;
+    return `${DIAS_SEMANA[dt.getDay()]}, ${d} ${MESES_ABREV[m-1]}`;
   }
 
   function calcularTotal(registros) {
-    const entradas = registros.filter(r => r.tipo === 'entrada').sort((a,b)=>a.hora.localeCompare(b.hora));
-    const saidas   = registros.filter(r => r.tipo === 'saida').sort((a,b)=>a.hora.localeCompare(b.hora));
+    const entradas = registros.filter(r => r.tipo === 'entrada').map(r => r.hora).sort();
+    const saidas   = registros.filter(r => r.tipo === 'saida').map(r => r.hora).sort();
     let total = 0, i = 0, j = 0;
     while (i < entradas.length && j < saidas.length) {
-      const e = entradas[i].hora, s = saidas[j].hora;
-      if (s > e) {
-        const [eh, em, es] = e.split(':').map(Number);
-        const [sh, sm, ss] = s.split(':').map(Number);
-        total += (sh*3600 + sm*60 + ss) - (eh*3600 + em*60 + es);
+      if (saidas[j] > entradas[i]) {
+        const toSec = h => { const [hh,mm,ss] = h.split(':').map(Number); return hh*3600+mm*60+ss; };
+        total += toSec(saidas[j]) - toSec(entradas[i]);
         i++; j++;
       } else { j++; }
     }
     if (total <= 0) return '';
-    const h = Math.floor(total / 3600);
-    const m = Math.floor((total % 3600) / 60);
-    return `${h}h${pad(m)}`;
+    return `${Math.floor(total/3600)}h${pad(Math.floor((total%3600)/60))}`;
   }
 
-  // ── RELÓGIO SYSTEM ────────────────────────────────────────
+  function formatarTsRelativo(ts) {
+    if (!ts) return '';
+    const diff = Date.now() - ts;
+    if (diff < 60000) return 'agora';
+    if (diff < 3600000) return `há ${Math.floor(diff/60000)}min`;
+    if (diff < 86400000) return `há ${Math.floor(diff/3600000)}h`;
+    const d = new Date(ts);
+    return `${pad(d.getDate())}/${pad(d.getMonth()+1)}`;
+  }
+
+  // ── RELÓGIO ───────────────────────────────────────────────
   function tickRelogio() {
     const d = new Date();
     document.getElementById('hh').textContent = pad(d.getHours());
     document.getElementById('mm').textContent = pad(d.getMinutes());
     document.getElementById('ss').textContent = pad(d.getSeconds());
     document.getElementById('live-date').textContent =
-      `${DIAS_SEMANA[d.getDay()]} , ${d.getDate()} de ${['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'][d.getMonth()]} de ${d.getFullYear()}`;
+      `${DIAS_SEMANA[d.getDay()]}, ${d.getDate()} de ${MESES_FULL[d.getMonth()]} de ${d.getFullYear()}`;
   }
   tickRelogio();
   setInterval(tickRelogio, 1000);
 
-  // ── PONTO LOGIC OPERATIONS ────────────────────────────────
-  window.baterPontoDinamico = async function(proximoTipo) {
-    if (!usuarioLogadoId) return;
+  // ── PONTO: WRITE ──────────────────────────────────────────
+  window.baterPontoDinamico = async function(tipo) {
+    if (!usuarioAtual) return;
+
+    const btn = document.getElementById('btn-ponto-dinamico');
+    btn.onclick = null;
+    btn.className = 'btn-ponto btn-loading';
+    document.getElementById('dinamico-label').textContent = 'Registrando...';
+    document.getElementById('dinamico-icon').textContent  = '⏳';
+
     try {
-      document.getElementById('dinamico-label').textContent = 'Processando...';
-      const logsRef = ref(db, `usuarios/${usuarioLogadoId}/logs`);
-      await set(push(logsRef), { tipo: proximoTipo, ts: serverTimestamp() });
-      
-      toast(`${proximoTipo === 'entrada' ? 'Entrada' : 'Saída'} registrada com sucesso!`);
-      await sincronizarBancoRemoto();
+      const timeData = hojeStr();
+      const tsLocal = Date.now();
+
+      const logsRef = ref(db, `usuarios/${usuarioAtual.uid}/logs`);
+      const novoRef  = push(logsRef);
+      await set(novoRef, { tipo, ts: serverTimestamp() });
+
+      if (!dadosApp[timeData.iso]) dadosApp[timeData.iso] = [];
+      dadosApp[timeData.iso].push({ tipo, hora: timeData.hora, ts: tsLocal, key: novoRef.key });
+      salvarCacheLocal();
+
+      toast(tipo === 'entrada' ? '✓ Entrada registrada' : '✓ Saída registrada', 'success');
       renderizar();
+      renderizarResumo();
     } catch (err) {
-      toast("Erro de gravação na nuvem.");
-      renderizar();
+      toast('Erro ao registrar. Verifique a conexão.', 'error');
+      renderizar(); 
     }
   }
 
+  // ── PONTO: DELETE (CORRIGIDO ESCOPO WINDOW) ─────────────────
   window.deletarRegistro = async function(data, idx) {
-    if (!usuarioLogadoId) return;
-    const registro = dadosApp[data][idx];
-    if (registro && registro.key) {
-      if (confirm("Remover este registro permanentemente da nuvem?")) {
-        try {
-          await remove(ref(db, `usuarios/${usuarioLogadoId}/logs/${registro.key}`));
-          await sincronizarBancoRemoto();
-          renderizar();
-          toast("Registro removido.");
-        } catch (err) { toast("Erro ao deletar do servidor."); }
-      }
-    }
+    if (!usuarioAtual) return;
+    const registro = (dadosApp[data] || [])[idx];
+    if (!registro?.key) return;
+    if (!confirm("Remover este registro permanentemente?")) return;
+    try {
+      await remove(ref(db, `usuarios/${usuarioAtual.uid}/logs/${registro.key}`));
+      deleteLocalRecord(data, idx);
+      toast('Registro removido.');
+    } catch { toast('Erro ao deletar.', 'error'); }
   }
 
-  // ── MÓDULO OPERACIONAL: TAREFAS (WRITE/DELETE) ───────────────
+  // ── TAREFAS: WRITE ────────────────────────────────────────
   window.adicionarTarefa = async function() {
-    if (!usuarioLogadoId) return;
+    if (!usuarioAtual) return;
     const input = document.getElementById('task-input');
     const texto = input.value.trim();
-    if (!texto) return;
+    if (!texto) { input.focus(); return; }
+
+    input.value = '';
+    input.focus();
+
+    const tsLocal = Date.now();
+    const tarefasRef = ref(db, `usuarios/${usuarioAtual.uid}/tarefas`);
+    const novoRef    = push(tarefasRef);
+
+    tarefasApp[novoRef.key] = { texto, ts: tsLocal };
+    salvarCacheLocal();
+    renderizarTarefas();
 
     try {
-      const tarefasRef = ref(db, `usuarios/${usuarioLogadoId}/tarefas`);
-      await set(push(tarefasRef), {
-        texto: texto,
-        ts: serverTimestamp()
-      });
-      input.value = '';
-      await sincronizarBancoRemoto();
+      await set(novoRef, { texto, ts: serverTimestamp() });
+      toast('Tarefa adicionada!', 'success');
+    } catch {
+      delete tarefasApp[novoRef.key];
+      salvarCacheLocal();
       renderizarTarefas();
-      toast("Tarefa adicionada com sucesso!");
-    } catch (err) {
-      toast("Erro ao tentar salvar tarefa.");
+      toast('Erro ao salvar tarefa.', 'error');
     }
   }
 
+  document.getElementById('task-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') window.adicionarTarefa();
+  });
+
+  // ── TAREFAS: DELETE ────────────────────────────────────────
   window.deletarTarefa = async function(key) {
-    if (!usuarioLogadoId) return;
+    if (!usuarioAtual) return;
+    const tarefa = tarefasApp[key];
+    if (!tarefa) return;
+
+    delete tarefasApp[key];
+    salvarCacheLocal();
+    renderizarTarefas();
+
     try {
-      await remove(ref(db, `usuarios/${usuarioLogadoId}/tarefas/${key}`));
-      await sincronizarBancoRemoto();
+      await remove(ref(db, `usuarios/${usuarioAtual.uid}/tarefas/${key}`));
+      toast('Tarefa concluída! ✓', 'success');
+    } catch {
+      tarefasApp[key] = tarefa;
+      salvarCacheLocal();
       renderizarTarefas();
-      toast("Tarefa concluída!");
-    } catch (err) {
-      toast("Erro ao remover tarefa.");
+      toast('Erro ao remover tarefa.', 'error');
     }
   }
 
-  // ── RECONCILIAÇÃO VISUAL: TAREFAS ────────────────────────────
+  // ── TAREFAS: RENDER ────────────────────────────────────────
   function renderizarTarefas() {
-    const lista = document.getElementById('lista-tarefas');
+    const lista  = document.getElementById('lista-tarefas');
+    const countEl = document.getElementById('task-count');
+    const badge   = document.getElementById('task-nav-badge');
     lista.innerHTML = '';
 
     const keys = Object.keys(tarefasApp);
+
+    if (keys.length > 0) {
+      countEl.textContent = `${keys.length} tarefa${keys.length > 1 ? 's' : ''}`;
+      badge.textContent   = keys.length;
+      badge.style.display = 'flex';
+    } else {
+      countEl.textContent = '';
+      badge.style.display = 'none';
+    }
+
     if (keys.length === 0) {
-      lista.innerHTML = '<li class="empty-state">Nenhuma tarefa pendente</li>';
+      lista.innerHTML = '<li class="empty-state"><span class="empty-icon">✅</span>Tudo em dia! Nenhuma tarefa pendente.</li>';
       return;
     }
 
-    // Ordenação cronológica crescente dos logs de tarefas
-    const ordenadas = keys.map(k => ({ key: k, ...tarefasApp[k] })).sort((a, b) => (a.ts || 0) - (b.ts || 0));
+    const ordenadas = keys
+      .map(k => ({ key: k, ...tarefasApp[k] }))
+      .sort((a, b) => (a.ts || 0) - (b.ts || 0));
 
     ordenadas.forEach(t => {
       const li = document.createElement('li');
       li.className = 'registro-item';
       li.innerHTML = `
         <div class="registro-left">
-          <span class="tipo-dot entrada"></span>
-          <span class="task-text">${t.texto}</span>
+          <span class="tipo-dot tarefa"></span>
+          <div style="display:flex;flex-direction:column;gap:2px;min-width:0;">
+            <span class="task-text">${escapeHtml(t.texto)}</span>
+            <span class="task-ts">${formatarTsRelativo(t.ts)}</span>
+          </div>
         </div>
-        <button class="btn-del btn-check" onclick="deletarTarefa('${t.key}')" title="Concluir Task" style="color: var(--accent); font-size: 18px; font-weight: bold; margin-right: 4px;">✓</button>
+        <button class="btn-del btn-check" title="Marcar como concluída">✓</button>
       `;
+
+      li.querySelector('.btn-check').dataset.key = t.key;
+      li.querySelector('.btn-check').addEventListener('click', function() {
+        window.deletarTarefa(this.dataset.key);
+      });
+
       lista.appendChild(li);
     });
   }
 
-  // ── RECONCILIAÇÃO VISUAL: PONTO ──────────────────────────────
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── PONTO: RENDER (CORRIGIDO ERRO DE REFERÊNCIA LOCAL) ──────
   function renderizar() {
-    const hojeStr = agora().data;
-    const registrosHoje = dadosApp[hojeStr] || [];
+    const timeData = hojeStr();
+    const registrosHoje = dadosApp[timeData.iso] || [];
 
-    let ultimoTipoGeral = 'saida';
-    let ultimoHorarioGeral = '--:--';
-    let maiorTsEncontrado = 0;
+    let ultimoTipo = 'saida';
+    let ultimaHora = '--:--';
+    let maiorTs    = 0;
 
-    Object.keys(dadosApp).forEach(dia => {
-      dadosApp[dia].forEach(reg => {
-        if (reg.ts > maiorTsEncontrado) {
-          maiorTsEncontrado = reg.ts;
-          ultimoTipoGeral = reg.tipo;
-          ultimoHorarioGeral = reg.hora.slice(0, 5);
+    Object.values(dadosApp).forEach(dia => {
+      dia.forEach(reg => {
+        if (reg.ts > maiorTs) {
+          maiorTs    = reg.ts;
+          ultimoTipo = reg.tipo;
+          ultimaHora = reg.hora.slice(0, 5);
         }
       });
     });
 
-    const btnDinamico = document.getElementById('btn-ponto-dinamico');
-    const labelDinamico = document.getElementById('dinamico-label');
-    const iconDinamico = document.getElementById('dinamico-icon');
-    const sublabelDinamico = document.getElementById('dinamico-sublabel');
+    const btn         = document.getElementById('btn-ponto-dinamico');
+    const labelEl     = document.getElementById('dinamico-label');
+    const iconEl      = document.getElementById('dinamico-icon');
+    const sublabelEl  = document.getElementById('dinamico-sublabel');
 
-    if (ultimoTipoGeral === 'entrada') {
-      btnDinamico.className = 'btn-ponto btn-saida';
-      iconDinamico.textContent = '←';
-      labelDinamico.textContent = 'Registrar Saída';
-      sublabelDinamico.textContent = `Entrada realizada às ${ultimoHorarioGeral}`;
-      btnDinamico.onclick = () => window.baterPontoDinamico('saida');
+    if (ultimoTipo === 'entrada') {
+      btn.className      = 'btn-ponto btn-saida';
+      iconEl.textContent = '←';
+      labelEl.textContent   = 'Registrar Saída';
+      sublabelEl.textContent = `Entrada registrada às ${ultimaHora}`;
+      btn.onclick = () => window.baterPontoDinamico('saida');
     } else {
-      btnDinamico.className = 'btn-ponto btn-entrada';
-      iconDinamico.textContent = '→';
-      labelDinamico.textContent = 'Registrar Entrada';
-      sublabelDinamico.textContent = maiorTsEncontrado ? `Última saída às ${ultimoHorarioGeral}` : 'Nenhum turno ativo';
-      btnDinamico.onclick = () => window.baterPontoDinamico('entrada');
+      btn.className      = 'btn-ponto btn-entrada';
+      iconEl.textContent = '→';
+      labelEl.textContent   = 'Registrar Entrada';
+      sublabelEl.textContent = maiorTs ? `Última saída às ${ultimaHora}` : 'Nenhum turno ativo';
+      btn.onclick = () => window.baterPontoDinamico('entrada');
     }
 
     const listaHoje = document.getElementById('registros-hoje');
-    const totalHoje = document.getElementById('hoje-total');
+    const totalEl   = document.getElementById('hoje-total');
     listaHoje.innerHTML = '';
-    
+
     if (registrosHoje.length === 0) {
-      listaHoje.innerHTML = '<li class="empty-state">Nenhum registro ainda</li>';
-      totalHoje.textContent = '';
+      listaHoje.innerHTML = '<li class="empty-state"><span class="empty-icon">🕐</span>Nenhum registro ainda hoje</li>';
+      totalEl.textContent = '';
     } else {
       registrosHoje.forEach((r, i) => {
         const li = document.createElement('li');
@@ -676,31 +890,33 @@
             <span class="tipo-label">${r.tipo === 'entrada' ? 'Entrada' : 'Saída'}</span>
           </div>
           <span class="registro-hora ${r.tipo}">${r.hora.slice(0,5)}</span>
-          <button class="btn-del" onclick="deletarRegistro('${hojeStr}',${i})" title="Remover">✕</button>
+          <button class="btn-del" title="Remover registro">✕</button>
         `;
+        // FIX: Chamando o método via escopo global explícito window
+        li.querySelector('.btn-del').addEventListener('click', () => window.deletarRegistro(timeData.iso, i));
         listaHoje.appendChild(li);
       });
       const tot = calcularTotal(registrosHoje);
-      totalHoje.textContent = tot ? `${tot} trabalhadas` : '';
+      totalEl.textContent = tot ? `${tot} trabalhadas` : '';
     }
 
     const container = document.getElementById('historico-container');
     container.innerHTML = '';
-    const dias = Object.keys(dadosApp).filter(d => d !== hojeStr).sort().reverse();
-    
+    const dias = Object.keys(dadosApp).filter(d => d !== timeData.iso).sort().reverse();
+
     if (dias.length === 0) {
       container.innerHTML = '<div style="padding:0 20px;font-size:13px;color:var(--muted)">Nenhum registro anterior</div>';
       return;
     }
-    
+
     dias.forEach(dia => {
-      const regs = dadosApp[dia];
-      const card = document.createElement('div');
+      const regs  = dadosApp[dia];
+      const card  = document.createElement('div');
       card.className = 'history-card';
-      const total = calcularTotal(regs);
-      const bodyId = `hist-${dia}`;
+      const total   = calcularTotal(regs);
+      const bodyId  = `hist-${dia}`;
       card.innerHTML = `
-        <div class="history-day-header" onclick="toggleDia('${bodyId}')">
+        <div class="history-day-header" onclick="window.toggleDia('${bodyId}')">
           <span class="day-label">${formatarDataHumana(dia)}</span>
           <div class="day-meta">
             ${total ? `<span class="day-total">${total}</span>` : ''}
@@ -709,14 +925,14 @@
         </div>
         <div class="history-day-body" id="${bodyId}">
           <ul class="registros-list">
-            ${regs.map((r,i) => `
+            ${regs.map((r, i) => `
               <li class="registro-item">
                 <div class="registro-left">
                   <span class="tipo-dot ${r.tipo}"></span>
                   <span class="tipo-label">${r.tipo === 'entrada' ? 'Entrada' : 'Saída'}</span>
                 </div>
                 <span class="registro-hora ${r.tipo}">${r.hora.slice(0,5)}</span>
-                <button class="btn-del" onclick="deletarRegistro('${dia}',${i})" title="Remover">✕</button>
+                <button class="btn-del" onclick="window.deletarRegistro('${dia}',${i})" title="Remover">✕</button>
               </li>
             `).join('')}
           </ul>
@@ -731,10 +947,54 @@
     document.getElementById('chev-' + id).classList.toggle('open');
   }
 
-  // ── EXPORT ENGINE ────────────────────────────────────────
+  // ── RESUMO: RENDER ─────────────────────────────────────────
+  function renderizarResumo() {
+    const grid = document.getElementById('resumo-grid');
+    if(!grid) return;
+    grid.innerHTML = '';
+
+    const dias   = Object.keys(dadosApp);
+    const totais = dias.map(d => calcularTotal(dadosApp[d])).filter(Boolean);
+
+    const toMin = str => {
+      if (!str) return 0;
+      const [h, m] = str.replace('h','|').split('|').map(Number);
+      return h*60 + (m||0);
+    };
+
+    const totalDias   = dias.length;
+    const diasComHora = totais.length;
+    const mediaMin    = diasComHora ? Math.round(totais.reduce((s,t) => s+toMin(t), 0)/diasComHora) : 0;
+    const mediaStr    = mediaMin ? `${Math.floor(mediaMin/60)}h${pad(mediaMin%60)}` : '--';
+
+    const timeData     = hojeStr();
+    const registrosHoje = dadosApp[timeData.iso] || [];
+    const totalHoje    = calcularTotal(registrosHoje) || '--';
+    const numTarefas    = Object.keys(tarefasApp).length;
+
+    const stats = [
+      { label: 'Total hoje',     value: totalHoje,    sub: `${registrosHoje.length} registro${registrosHoje.length !== 1 ? 's' : ''}`, wide: false },
+      { label: 'Média diária',   value: mediaStr,     sub: `${diasComHora} dias com registro`,                                         wide: false },
+      { label: 'Dias no histórico', value: totalDias, sub: `${diasComHora} com hora calculada`,                                         wide: false },
+      { label: 'Tarefas pendentes', value: numTarefas, sub: numTarefas === 0 ? 'Tudo em dia!' : 'clique em Tarefas',                     wide: false },
+    ];
+
+    stats.forEach(s => {
+      const card = document.createElement('div');
+      card.className = 'stat-card' + (s.wide ? ' wide' : '');
+      card.innerHTML = `
+        <span class="stat-label">${s.label}</span>
+        <span class="stat-value">${s.value}</span>
+        <span class="stat-sub">${s.sub}</span>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  // ── EXPORT ─────────────────────────────────────────────────
   window.abrirExport = function() {
     const dias = Object.keys(dadosApp).sort();
-    if (dias.length === 0) { toast('Nenhum dado para exportar'); return; }
+    if (dias.length === 0) { toast('Nenhum dado para exportar.', 'error'); return; }
     let txt = '=== REGISTRO DE PONTO ===\n\n';
     dias.forEach(dia => {
       const regs = dadosApp[dia];
@@ -758,32 +1018,27 @@
 
   window.copiarExport = function() {
     const txt = document.getElementById('export-text').value;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(txt).then(() => {
-        fecharExport();
-        toast('Copiado para a área de transferência!');
-      });
-    } else {
-      document.getElementById('export-text').select();
-      document.execCommand('copy');
-      fecharExport();
-      toast('Copiado!');
-    }
+    (navigator.clipboard
+      ? navigator.clipboard.writeText(txt)
+      : Promise.resolve(document.execCommand('copy'))
+    ).then(() => { fecharExport(); toast('Copiado!', 'success'); });
   }
 
   document.getElementById('modal-export').addEventListener('click', function(e) {
     if (e.target === this) fecharExport();
   });
 
-  // ── TOAST ALERT ─────────────────────────────────────────
+  // ── TOAST ──────────────────────────────────────────────────
   let toastTimer;
-  function toast(msg) {
+  function toast(msg, type = '') {
     const el = document.getElementById('toast');
+    if(!el) return;
     el.textContent = msg;
-    el.classList.add('show');
+    el.className   = 'show' + (type ? ' ' + type : '');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+    toastTimer = setTimeout(() => { el.className = ''; }, 2800);
   }
+  window.toast = toast; 
 </script>
 </body>
 </html>
