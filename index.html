@@ -7,6 +7,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Centro</title>
+  
+  <link rel="manifest" href="manifest.json" />
+  
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -47,6 +50,27 @@
       padding: 0 0 80px;
     }
 
+    /* ── SPLASH SCREEN (FLICKER MITIGATION) ── */
+    .splash-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 120;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
     /* ── TELA DE LOGIN OVERLAY ── */
     .login-overlay {
       position: fixed;
@@ -60,6 +84,7 @@
       padding: 30px;
       max-width: 480px;
       margin: 0 auto;
+      display: none;
     }
     .login-card {
       width: 100%;
@@ -195,6 +220,11 @@
 </head>
 <body>
 
+<div id="splash-screen" class="splash-overlay">
+  <div class="spinner"></div>
+  <p style="margin-top: 16px; color: var(--muted); font-size: 13px; letter-spacing: 0.05em; font-weight: 500;">Carregando Centro...</p>
+</div>
+
 <div id="login-screen" class="login-overlay">
   <div class="login-card">
     <h2>Centro de Facilidades</h2>
@@ -308,10 +338,10 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+  import { getDatabase, ref, push, set, get, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-  // TODO: Substitua as strings abaixo pelas credenciais geradas no seu Firebase Console
+  // Cole suas credenciais reais aqui do Firebase
   const firebaseConfig = {
   apiKey: "AIzaSyCAZ33yjFhdAa1u4tGGiKSUMtNlKaWCegs",
   authDomain: "fology-4a52e.firebaseapp.com",
@@ -327,51 +357,67 @@
   const db = getDatabase(app);
   const auth = getAuth(app);
 
-  const STORAGE_KEY = 'centro_ponto_v1';
-  let dadosApp = {};
+  const STORAGE_KEY = 'centro_ponto_v2_logs';
+  let dadosApp = {}; // Mantém a estrutura de renderização agrupada por data { 'YYYY-MM-DD': [] }
   let usuarioLogadoId = null;
 
-  // ── CORE STORAGE CONTROL ─────────────────────────────────
-  async function carregarDados() {
-    if (!usuarioLogadoId) return {};
+  // ── NOVO PROCESSADOR DE MUTAÇÃO (SERVER TIMESTAMP INTEGRATED) ──
+  async function carregarEFiltrarDados() {
+    if (!usuarioLogadoId) return;
     try {
-      const snapshot = await get(ref(db, `usuarios/${usuarioLogadoId}/pontos`));
+      const snapshot = await get(ref(db, `usuarios/${usuarioLogadoId}/logs`));
+      const dadosAgrupados = {};
+      
       if (snapshot.exists()) {
-        const dadosNuvem = snapshot.val();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(dadosNuvem));
-        return dadosNuvem;
+        const logsRaw = snapshot.val();
+        
+        // Converte objeto em lista ordenada de forma crescente por carimbo de data/hora
+        const logsOrdenados = Object.keys(logsRaw).map(key => ({
+          key: key,
+          ...logsRaw[key]
+        })).sort((a, b) => (a.ts || 0) - (b.ts || 0));
+
+        logsOrdenados.forEach(item => {
+          if (!item.ts) return; // ignora valores transicionais nulos
+          
+          const d = new Date(item.ts);
+          const dataStr = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+          const horaStr = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+          
+          if (!dadosAgrupados[dataStr]) dadosAgrupados[dataStr] = [];
+          dadosAgrupados[dataStr].push({
+            tipo: item.tipo,
+            hora: horaStr,
+            ts: item.ts,
+            key: item.key
+          });
+        });
       }
+      dadosApp = dadosAgrupados;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dadosApp));
     } catch (err) {
-      console.warn("Sem conexão com banco na nuvem. Usando local temporário.");
-    }
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
-    catch { return {}; }
-  }
-
-  async function salvarDados(novosDados) {
-    dadosApp = novosDados;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(novosDados));
-    if (usuarioLogadoId) {
-      try {
-        await set(ref(db, `usuarios/${usuarioLogadoId}/pontos`), novosDados);
-      } catch (err) {
-        console.error("Erro crítico na sincronização em tempo real:", err);
-      }
+      console.warn("Recuperando cache estrutural local offline.");
+      try { dadosApp = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+      catch { dadosApp = {}; }
     }
   }
 
-  // ── AUTHENTICATION LIFECYCLE ──────────────────────────────
+  // ── AUTHENTICATION LIFECYCLE (MITIGAÇÃO DE FLICKER) ──────────────────
   onAuthStateChanged(auth, async (user) => {
     const loginScreen = document.getElementById('login-screen');
+    const splashScreen = document.getElementById('splash-screen');
+    
     if (user) {
       usuarioLogadoId = user.uid;
       loginScreen.style.display = 'none';
-      dadosApp = await carregarDados();
+      await carregarEFiltrarDados();
       renderizar();
     } else {
       usuarioLogadoId = null;
       loginScreen.style.display = 'flex';
     }
+    // Desativa o splash screen somente após resolver o estado completo da sessão
+    splashScreen.style.display = 'none';
   });
 
   window.executarLogin = async function() {
@@ -379,10 +425,11 @@
     const senha = document.getElementById('login-senha').value;
     if (!email || !senha) { alert("Preencha todos os campos!"); return; }
     try {
+      document.getElementById('splash-screen').style.display = 'flex';
       await signInWithEmailAndPassword(auth, email, senha);
-      toast("Sincronizado via Nuvem!");
     } catch (err) {
-      alert("Erro na autenticação: Verifique e-mail/senha ou permissões.");
+      document.getElementById('splash-screen').style.display = 'none';
+      alert("Erro na autenticação: Verifique suas credenciais.");
     }
   }
 
@@ -411,11 +458,7 @@
 
   function agora() {
     const d = new Date();
-    return {
-      data: `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`,
-      hora: `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`,
-      hhmm: `${pad(d.getHours())}:${pad(d.getMinutes())}`
-    };
+    return { data: `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}` };
   }
 
   function formatarDataHumana(dataStr) {
@@ -454,29 +497,47 @@
     document.getElementById('mm').textContent = pad(d.getMinutes());
     document.getElementById('ss').textContent = pad(d.getSeconds());
     document.getElementById('live-date').textContent =
-      `${DIAS_SEMANA[d.getDay()]} , ${d.getDate()} de ${['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'][d.getMonth()]} de ${d.getFullYear()}`;
+      `${DIAS_SEMANA[d.getDay()]}, ${d.getDate()} de ${['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'][d.getMonth()]} de ${d.getFullYear()}`;
   }
   tickRelogio();
   setInterval(tickRelogio, 1000);
 
-  // ── INTERACTION PUNCH ACTIONS ─────────────────────────────
+  // ── INTERACTION PUNCH ACTIONS (SERVER TIMESTAMP DRIVEN) ───
   window.baterPonto = async function(tipo) {
-    const { data, hora, hhmm } = agora();
-    const copiaDados = { ...dadosApp };
-    if (!copiaDados[data]) copiaDados[data] = [];
-    copiaDados[data].push({ tipo, hora, ts: Date.now() });
-    await salvarDados(copiaDados);
-    renderizar();
-    toast(tipo === 'entrada' ? `Entrada registrada — ${hhmm}` : `Saída registrada — ${hhmm}`);
+    if (!usuarioLogadoId) return;
+    try {
+      const logsRef = ref(db, `usuarios/${usuarioLogadoId}/logs`);
+      const novoPontoRef = push(logsRef);
+      
+      // Envia exclusivamente o comando de geração temporal para os servidores do Firebase
+      await set(novoPontoRef, {
+        tipo: tipo,
+        ts: serverTimestamp()
+      });
+      
+      toast(`${tipo === 'entrada' ? 'Entrada' : 'Saída'} registrada com sucesso!`);
+      await carregarEFiltrarDados();
+      renderizar();
+    } catch (err) {
+      console.error(err);
+      toast("Erro de gravação no banco remoto.");
+    }
   }
 
   window.deletarRegistro = async function(data, idx) {
-    const copiaDados = { ...dadosApp };
-    if (copiaDados[data]) {
-      copiaDados[data].splice(idx, 1);
-      if (copiaDados[data].length === 0) delete copiaDados[data];
-      await salvarDados(copiaDados);
-      renderizar();
+    if (!usuarioLogadoId) return;
+    const registro = dadosApp[data][idx];
+    if (registro && registro.key) {
+      if (confirm("Remover este registro permanentemente da nuvem?")) {
+        try {
+          await remove(ref(db, `usuarios/${usuarioLogadoId}/logs/${registro.key}`));
+          await carregarEFiltrarDados();
+          renderizar();
+          toast("Registro removido.");
+        } catch (err) {
+          toast("Erro ao tentar deletar da nuvem.");
+        }
+      }
     }
   }
 
