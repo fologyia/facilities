@@ -137,7 +137,7 @@
     .app-title { font-size: 11px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
     .module-badge { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); background: var(--accent-dim); padding: 3px 8px; border-radius: 20px; }
 
-    /* ── CLOCK HERO (CORRIGIDO E CENTRALIZADO) ── */
+    /* ── CLOCK HERO ── */
     .clock-block { padding: 28px 20px 20px; text-align: center; }
     .live-time { 
       font-family: var(--mono); 
@@ -147,13 +147,11 @@
       color: var(--text); 
       line-height: 1;
     }
-    .live-time .colon { 
-      animation: blink 1s step-end infinite; 
-    }
+    .live-time .colon { animation: blink 1s step-end infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.15} }
     .live-date { margin-top: 8px; font-size: 13px; color: var(--muted); letter-spacing: 0.04em; }
 
-    /* ── ACTION BUTTONS (MÁQUINA DE ESTADO - BOTÃO ÚNICO) ── */
+    /* ── ACTION BUTTONS (BOTÃO ÚNICO) ── */
     .actions { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 0 20px 24px; }
     .btn-ponto {
       display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 24px 16px; border: none; border-radius: 16px; cursor: pointer; font-family: var(--sans); transition: transform 0.1s, opacity 0.1s, background-color 0.2s; -webkit-user-select: none; user-select: none; width: 100%;
@@ -165,7 +163,7 @@
     .btn-ponto .label { font-size: 14px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
     .btn-ponto .sublabel { font-size: 11px; opacity: 0.75; font-family: var(--mono); }
 
-    /* ── TODAY SUMMARY (CORRIGIDO E SIMÉTRICO) ── */
+    /* ── CARDS CONFIGURATIONS (PONTO & TAREFAS) ── */
     .today-card { margin: 0 20px 20px; background: var(--surface); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
     .today-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border); }
     .today-title { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
@@ -174,29 +172,19 @@
     .registro-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); gap: 10px; }
     .registro-item:last-child { border-bottom: none; }
     
-    .registro-left { 
-      display: flex; 
-      align-items: center; 
-      gap: 10px; 
-      flex: 1; 
-    }
+    .registro-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
     .tipo-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .tipo-dot.entrada { background: var(--accent); }
     .tipo-dot.saida   { background: var(--exit); }
     .tipo-label { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+    .task-text { font-size: 14px; color: var(--text); word-break: break-word; }
     
-    .registro-hora { 
-      font-family: var(--mono); 
-      font-size: 15px; 
-      font-weight: 600; 
-      min-width: 60px; 
-      text-align: right; 
-      margin-right: 4px;
-    }
+    .registro-hora { font-family: var(--mono); font-size: 15px; font-weight: 600; min-width: 60px; text-align: right; margin-right: 4px; }
     .registro-hora.entrada { color: var(--accent); }
     .registro-hora.saida   { color: var(--exit); }
-    .btn-del { background: none; border: none; cursor: pointer; padding: 4px 6px; color: var(--muted); font-size: 16px; line-height: 1; border-radius: 6px; transition: color 0.15s, background 0.15s; }
+    .btn-del { background: none; border: none; cursor: pointer; padding: 4px 6px; color: var(--muted); font-size: 16px; line-height: 1; border-radius: 6px; transition: color 0.15s, background 0.15s; flex-shrink: 0; }
     .btn-del:active { color: var(--exit); background: var(--exit-dim); }
+    .btn-del.btn-check:active { color: var(--accent); background: var(--accent-dim); }
     .empty-state { padding: 28px 16px; text-align: center; color: var(--muted); font-size: 13px; }
 
     /* ── HISTORY ── */
@@ -298,10 +286,23 @@
   </main>
 
   <main id="view-tarefas" class="app-view">
-    <div class="placeholder-view">
-      <span class="icon">📋</span>
-      <h3>Módulo de Tarefas</h3>
-      <p style="font-size: 13px; margin-top: 8px;">Em breve: Gerenciamento de atividades.</p>
+    <div class="today-card" style="margin: 20px 20px 10px;">
+      <div class="today-header">
+        <span class="today-title">Nova Tarefa</span>
+      </div>
+      <div style="display: flex; gap: 10px; padding: 14px 16px;">
+        <input type="text" id="task-input" placeholder="O que precisa ser feito?" style="flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; color: var(--text); outline: none; font-family: var(--sans); font-size: 14px;" onkeydown="if(event.key === 'Enter') adicionarTarefa()" />
+        <button onclick="adicionarTarefa()" style="background: var(--accent); color: #000; border: none; border-radius: 12px; padding: 0 18px; font-weight: 600; cursor: pointer; font-family: var(--sans); font-size: 13px; letter-spacing: 0.02em; text-transform: uppercase;">Add</button>
+      </div>
+    </div>
+
+    <div class="today-card" style="margin: 0 20px 20px;">
+      <div class="today-header">
+        <span class="today-title">Pendentes</span>
+      </div>
+      <ul class="registros-list" id="lista-tarefas">
+        <li class="empty-state">Nenhuma tarefa pendente</li>
+      </ul>
     </div>
   </main>
 
@@ -375,70 +376,67 @@
   const db = getDatabase(app);
   const auth = getAuth(app);
 
-  const STORAGE_KEY = 'centro_ponto_v2_logs';
+  const STORAGE_KEY_PONTO = 'centro_ponto_v2_logs';
+  const STORAGE_KEY_TAREFAS = 'centro_tarefas_v1';
+  
   let dadosApp = {}; 
+  let tarefasApp = {};
   let usuarioLogadoId = null;
 
-  // ── MUDANÇA 2: SINCRONIZAÇÃO INICIAL AGRESSIVA (CACHE LOCAL FIRST) ──
+  // ── INFRASTRUCTURE: HYBRID STORAGE ARCHITECTURE ──────────
   function carregarCacheLocal() {
-    try { 
-      dadosApp = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; 
-    } catch { 
-      dadosApp = {}; 
-    }
+    try { dadosApp = JSON.parse(localStorage.getItem(STORAGE_KEY_PONTO)) || {}; } catch { dadosApp = {}; }
+    try { tarefasApp = JSON.parse(localStorage.getItem(STORAGE_KEY_TAREFAS)) || {}; } catch { tarefasApp = {}; }
   }
 
-  async function carregarEFiltrarDados() {
+  async function sincronizarBancoRemoto() {
     if (!usuarioLogadoId) return;
+    
+    // Processamento de Logs do Ponto
     try {
-      const snapshot = await get(ref(db, `usuarios/${usuarioLogadoId}/logs`));
+      const snapshotPonto = await get(ref(db, `usuarios/${usuarioLogadoId}/logs`));
       const dadosAgrupados = {};
-      
-      if (snapshot.exists()) {
-        const logsRaw = snapshot.val();
+      if (snapshotPonto.exists()) {
+        const logsRaw = snapshotPonto.val();
+        const logsOrdenados = Object.keys(logsRaw).map(key => ({ key, ...logsRaw[key] })).sort((a, b) => (a.ts || 0) - (b.ts || 0));
         
-        const logsOrdenados = Object.keys(logsRaw).map(key => ({
-          key: key,
-          ...logsRaw[key]
-        })).sort((a, b) => (a.ts || 0) - (b.ts || 0));
-
         logsOrdenados.forEach(item => {
-          if (!item.ts) return; 
-          
+          if (!item.ts) return;
           const d = new Date(item.ts);
           const dataStr = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
           const horaStr = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
           
           if (!dadosAgrupados[dataStr]) dadosAgrupados[dataStr] = [];
-          dadosAgrupados[dataStr].push({
-            tipo: item.tipo,
-            hora: horaStr,
-            ts: item.ts,
-            key: item.key
-          });
+          dadosAgrupados[dataStr].push({ tipo: item.tipo, hora: horaStr, ts: item.ts, key: item.key });
         });
       }
       dadosApp = dadosAgrupados;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(dadosApp));
-    } catch (err) {
-      console.warn("Trabalhando em modo Offline. Exibindo dados do cache.");
-    }
+      localStorage.setItem(STORAGE_KEY_PONTO, JSON.stringify(dadosApp));
+    } catch (err) { console.warn("Modo offline ativo para histórico de pontos."); }
+
+    // Processamento de Tarefas
+    try {
+      const snapshotTarefas = await get(ref(db, `usuarios/${usuarioLogadoId}/tarefas`));
+      tarefasApp = snapshotTarefas.exists() ? snapshotTarefas.val() : {};
+      localStorage.setItem(STORAGE_KEY_TAREFAS, JSON.stringify(tarefasApp));
+    } catch (err) { console.warn("Modo offline ativo para lista de tarefas."); }
   }
 
-  // ── AUTHENTICATION LIFECYCLE (MITIGAÇÃO COMPLETA DE FLICKER) ──────────
+  // ── AUTHENTICATION LIFECYCLE ──────────────────────────────
   onAuthStateChanged(auth, async (user) => {
     const loginScreen = document.getElementById('login-screen');
     const splashScreen = document.getElementById('splash-screen');
     
-    // Roda o carregamento do cache imediato para evitar telas vazias
     carregarCacheLocal();
     renderizar();
+    renderizarTarefas();
     
     if (user) {
       usuarioLogadoId = user.uid;
       loginScreen.style.display = 'none';
-      await carregarEFiltrarDados();
+      await sincronizarBancoRemoto();
       renderizar();
+      renderizarTarefas();
     } else {
       usuarioLogadoId = null;
       loginScreen.style.display = 'flex';
@@ -462,7 +460,8 @@
   window.executarLogout = async function() {
     if (confirm("Deseja realmente desconectar deste dispositivo?")) {
       await signOut(auth);
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY_PONTO);
+      localStorage.removeItem(STORAGE_KEY_TAREFAS);
       location.reload();
     }
   }
@@ -476,7 +475,7 @@
     document.getElementById('current-module-badge').textContent = badgeLabel;
   }
 
-  // ── BUSINESS LOGIC UTILITIES ─────────────────────────────
+  // ── UTILITIES ───────────────────────────────────────────
   const DIAS_SEMANA = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
   const MESES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 
@@ -523,33 +522,25 @@
     document.getElementById('mm').textContent = pad(d.getMinutes());
     document.getElementById('ss').textContent = pad(d.getSeconds());
     document.getElementById('live-date').textContent =
-      `${DIAS_SEMANA[d.getDay()]}, ${d.getDate()} de ${['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'][d.getMonth()]} de ${d.getFullYear()}`;
+      `${DIAS_SEMANA[d.getDay()]} , ${d.getDate()} de ${['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'][d.getMonth()]} de ${d.getFullYear()}`;
   }
   tickRelogio();
   setInterval(tickRelogio, 1000);
 
-  // ── MUDANÇA 1: EVENT PUNCH (MÁQUINA DE ESTADOS DO BOTÃO ÚNICO) ───
+  // ── PONTO LOGIC OPERATIONS ────────────────────────────────
   window.baterPontoDinamico = async function(proximoTipo) {
     if (!usuarioLogadoId) return;
     try {
-      // Bloqueia clique duplo acidental mudando label imediatamente
       document.getElementById('dinamico-label').textContent = 'Processando...';
-      
       const logsRef = ref(db, `usuarios/${usuarioLogadoId}/logs`);
-      const novoPontoRef = push(logsRef);
+      await set(push(logsRef), { tipo: proximoTipo, ts: serverTimestamp() });
       
-      await set(novoPontoRef, {
-        tipo: proximoTipo,
-        ts: serverTimestamp()
-      });
-      
-      toast(`${proximoTipo === 'entrada' ? 'Entrada' : 'Saída'} registrada com relógio atômico!`);
-      await carregarEFiltrarDados();
+      toast(`${proximoTipo === 'entrada' ? 'Entrada' : 'Saída'} registrada com sucesso!`);
+      await sincronizarBancoRemoto();
       renderizar();
     } catch (err) {
-      console.error(err);
-      toast("Erro ao conectar com o servidor.");
-      renderizar(); // Restaura estado visual do botão
+      toast("Erro de gravação na nuvem.");
+      renderizar();
     }
   }
 
@@ -560,22 +551,81 @@
       if (confirm("Remover este registro permanentemente da nuvem?")) {
         try {
           await remove(ref(db, `usuarios/${usuarioLogadoId}/logs/${registro.key}`));
-          await carregarEFiltrarDados();
+          await sincronizarBancoRemoto();
           renderizar();
           toast("Registro removido.");
-        } catch (err) {
-          toast("Erro ao deletar do servidor.");
-        }
+        } catch (err) { toast("Erro ao deletar do servidor."); }
       }
     }
   }
 
-  // ── RECONCILIAÇÃO VISUAL (GERENCIADOR DE ESTADO DA INTERFACE) ──
+  // ── MÓDULO OPERACIONAL: TAREFAS (WRITE/DELETE) ───────────────
+  window.adicionarTarefa = async function() {
+    if (!usuarioLogadoId) return;
+    const input = document.getElementById('task-input');
+    const texto = input.value.trim();
+    if (!texto) return;
+
+    try {
+      const tarefasRef = ref(db, `usuarios/${usuarioLogadoId}/tarefas`);
+      await set(push(tarefasRef), {
+        texto: texto,
+        ts: serverTimestamp()
+      });
+      input.value = '';
+      await sincronizarBancoRemoto();
+      renderizarTarefas();
+      toast("Tarefa adicionada com sucesso!");
+    } catch (err) {
+      toast("Erro ao tentar salvar tarefa.");
+    }
+  }
+
+  window.deletarTarefa = async function(key) {
+    if (!usuarioLogadoId) return;
+    try {
+      await remove(ref(db, `usuarios/${usuarioLogadoId}/tarefas/${key}`));
+      await sincronizarBancoRemoto();
+      renderizarTarefas();
+      toast("Tarefa concluída!");
+    } catch (err) {
+      toast("Erro ao remover tarefa.");
+    }
+  }
+
+  // ── RECONCILIAÇÃO VISUAL: TAREFAS ────────────────────────────
+  function renderizarTarefas() {
+    const lista = document.getElementById('lista-tarefas');
+    lista.innerHTML = '';
+
+    const keys = Object.keys(tarefasApp);
+    if (keys.length === 0) {
+      lista.innerHTML = '<li class="empty-state">Nenhuma tarefa pendente</li>';
+      return;
+    }
+
+    // Ordenação cronológica crescente dos logs de tarefas
+    const ordenadas = keys.map(k => ({ key: k, ...tarefasApp[k] })).sort((a, b) => (a.ts || 0) - (b.ts || 0));
+
+    ordenadas.forEach(t => {
+      const li = document.createElement('li');
+      li.className = 'registro-item';
+      li.innerHTML = `
+        <div class="registro-left">
+          <span class="tipo-dot entrada"></span>
+          <span class="task-text">${t.texto}</span>
+        </div>
+        <button class="btn-del btn-check" onclick="deletarTarefa('${t.key}')" title="Concluir Task" style="color: var(--accent); font-size: 18px; font-weight: bold; margin-right: 4px;">✓</button>
+      `;
+      lista.appendChild(li);
+    });
+  }
+
+  // ── RECONCILIAÇÃO VISUAL: PONTO ──────────────────────────────
   function renderizar() {
     const hojeStr = agora().data;
     const registrosHoje = dadosApp[hojeStr] || [];
 
-    // ── CALCULO DE ESTADO ATÔMICO DO BOTÃO ──
     let ultimoTipoGeral = 'saida';
     let ultimoHorarioGeral = '--:--';
     let maiorTsEncontrado = 0;
@@ -595,7 +645,6 @@
     const iconDinamico = document.getElementById('dinamico-icon');
     const sublabelDinamico = document.getElementById('dinamico-sublabel');
 
-    // Transição de Estados (FSM)
     if (ultimoTipoGeral === 'entrada') {
       btnDinamico.className = 'btn-ponto btn-saida';
       iconDinamico.textContent = '←';
@@ -610,7 +659,6 @@
       btnDinamico.onclick = () => window.baterPontoDinamico('entrada');
     }
 
-    // ── RENDER DA LISTA DE HOJE ──
     const listaHoje = document.getElementById('registros-hoje');
     const totalHoje = document.getElementById('hoje-total');
     listaHoje.innerHTML = '';
@@ -636,7 +684,6 @@
       totalHoje.textContent = tot ? `${tot} trabalhadas` : '';
     }
 
-    // ── RENDER DO HISTÓRICO ANTERIOR ──
     const container = document.getElementById('historico-container');
     container.innerHTML = '';
     const dias = Object.keys(dadosApp).filter(d => d !== hojeStr).sort().reverse();
