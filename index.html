@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0F1117" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Centro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0F1117;
+      --surface:   #1C1F2A;
+      --surface2:  #252836;
+      --border:    #2E3245;
+      --accent:    #00D084;
+      --accent-dim:#004D31;
+      --exit:      #FF5C5C;
+      --exit-dim:  #4D1C1C;
+      --text:      #E8EAF0;
+      --muted:     #6B7280;
+      --mono:      'Roboto Mono', monospace;
+      --sans:      'Inter', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
+    }
+
+    /* ── SHELL ── */
+    .shell {
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0 0 80px;
+    }
+
+    /* ── VIEWS MANAGEMENT ── */
+    .app-view {
+      display: none;
+    }
+    .app-view.active-view {
+      display: block;
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 20px 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .app-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .module-badge {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-dim);
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
+
+    /* ── CLOCK HERO ── */
+    .clock-block {
+      padding: 28px 20px 20px;
+      text-align: center;
+    }
+    .live-time {
+      font-family: var(--mono);
+      font-size: clamp(52px, 18vw, 72px);
+      font-weight: 300;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      line-height: 1;
+    }
+    .live-time .colon {
+      animation: blink 1s step-end infinite;
+      display: inline-block;
+      width: 0.3em;
+      text-align: center;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.15} }
+    .live-date {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── ACTION BUTTONS ── */
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 0 20px 24px;
+    }
+    .btn-ponto {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 22px 16px;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: transform 0.1s, opacity 0.1s;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .btn-ponto:active { transform: scale(0.95); opacity: 0.85; }
+    .btn-entrada { background: var(--accent); color: #000; }
+    .btn-saida { background: var(--exit); color: #fff; }
+    .btn-ponto .icon { font-size: 24px; line-height: 1; }
+    .btn-ponto .label { font-size: 13px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+    .btn-ponto .sublabel { font-size: 11px; opacity: 0.65; font-family: var(--mono); }
+
+    /* ── TODAY SUMMARY ── */
+    .today-card {
+      margin: 0 20px 20px;
+      background: var(--surface);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .today-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .today-title { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    .today-total { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+    .registros-list { list-style: none; }
+    .registro-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      gap: 10px;
+    }
+    .registro-item:last-child { border-bottom: none; }
+    .registro-left { display: flex; align-items: center; gap: 10px; }
+    .tipo-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .tipo-dot.entrada { background: var(--accent); }
+    .tipo-dot.saida   { background: var(--exit); }
+    .tipo-label { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+    .registro-hora { font-family: var(--mono); font-size: 15px; font-weight: 600; }
+    .registro-hora.entrada { color: var(--accent); }
+    .registro-hora.saida   { color: var(--exit); }
+    .btn-del {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 6px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .btn-del:active { color: var(--exit); background: var(--exit-dim); }
+    .empty-state { padding: 28px 16px; text-align: center; color: var(--muted); font-size: 13px; }
+
+    /* ── HISTORY ── */
+    .section-title {
+      padding: 4px 20px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .btn-export {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: none;
+      border: 1px solid var(--accent-dim);
+      padding: 4px 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: var(--sans);
+    }
+    .history-card {
+      margin: 0 20px 12px;
+      background: var(--surface);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .history-day-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 16px;
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .history-day-header:hover { background: var(--surface2); }
+    .day-label { font-size: 13px; font-weight: 500; }
+    .day-meta { display: flex; align-items: center; gap: 10px; }
+    .day-total { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+    .chevron { color: var(--muted); font-size: 12px; transition: transform 0.2s; }
+    .chevron.open { transform: rotate(180deg); }
+    .history-day-body { display: none; border-top: 1px solid var(--border); }
+    .history-day-body.open { display: block; }
+
+    /* ── PLACEHOLDER MÓDULOS ── */
+    .placeholder-view {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .placeholder-view .icon { font-size: 48px; margin-bottom: 12px; display: block; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 99;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── MODAL ── */
+    .modal-backdrop {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 50;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border-radius: 20px 20px 0 0;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      padding: 24px 20px 40px;
+      width: 100%;
+      max-width: 480px;
+    }
+    .modal h3 { font-size: 16px; margin-bottom: 16px; }
+    .modal textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 12px;
+      resize: none;
+      height: 220px;
+      line-height: 1.7;
+      outline: none;
+    }
+    .modal-actions { display: flex; gap: 10px; margin-top: 14px; }
+    .btn-copy { flex: 1; padding: 14px; background: var(--accent); color: #000; border: none; border-radius: 12px; font-family: var(--sans); font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-close-modal { padding: 14px 20px; background: var(--surface2); color: var(--muted); border: 1px solid var(--border); border-radius: 12px; font-family: var(--sans); font-size: 14px; cursor: pointer; }
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 68px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 8px 16px;
+      cursor: pointer;
+      opacity: 0.4;
+      transition: opacity 0.15s;
+      -webkit-user-select: none;
+      user-select: none;
+      background: none;
+      border: none;
+    }
+    .nav-item.active { opacity: 1; }
+    .nav-item .nav-icon { font-size: 20px; line-height: 1; }
+    .nav-item .nav-label { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+    .nav-item.active .nav-label { color: var(--accent); }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <header>
+    <span class="app-title">Centro</span>
+    <span class="module-badge" id="current-module-badge">Ponto</span>
+  </header>
+
+  <main id="view-ponto" class="app-view active-view">
+    <div class="clock-block">
+      <div class="live-time">
+        <span id="hh">--</span><span class="colon">:</span><span id="mm">--</span><span class="colon">:</span><span id="ss">--</span>
+      </div>
+      <div class="live-date" id="live-date">carregando...</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-ponto btn-entrada" onclick="baterPonto('entrada')">
+        <span class="icon">→</span>
+        <span class="label">Entrada</span>
+        <span class="sublabel" id="last-entrada">--:--</span>
+      </button>
+      <button class="btn-ponto btn-saida" onclick="baterPonto('saida')">
+        <span class="icon">←</span>
+        <span class="label">Saída</span>
+        <span class="sublabel" id="last-saida">--:--</span>
+      </button>
+    </div>
+
+    <div class="today-card">
+      <div class="today-header">
+        <span class="today-title">Hoje</span>
+        <span class="today-total" id="hoje-total"></span>
+      </div>
+      <ul class="registros-list" id="registros-hoje">
+        <li class="empty-state">Nenhum registro ainda</li>
+      </ul>
+    </div>
+
+    <div class="section-title">
+      <span>Histórico</span>
+      <button class="btn-export" onclick="abrirExport()">Exportar</button>
+    </div>
+    <div id="historico-container"></div>
+  </main>
+
+  <main id="view-tarefas" class="app-view">
+    <div class="placeholder-view">
+      <span class="icon">📋</span>
+      <h3>Módulo de Tarefas</h3>
+      <p style="font-size: 13px; margin-top: 8px;">Em breve: Gerenciamento de atividades diárias.</p>
+    </div>
+  </main>
+
+  <main id="view-resumo" class="app-view">
+    <div class="placeholder-view">
+      <span class="icon">📊</span>
+      <h3>Módulo de Resumos</h3>
+      <p style="font-size: 13px; margin-top: 8px;">Em breve: Métricas e analytics dos seus dados.</p>
+    </div>
+  </main>
+
+  <main id="view-config" class="app-view">
+    <div class="placeholder-view">
+      <span class="icon">⚙️</span>
+      <h3>Configurações</h3>
+      <p style="font-size: 13px; margin-top: 8px;">Em breve: Customização de temas e backup.</p>
+    </div>
+  </main>
+
+</div><nav class="bottom-nav">
+  <button class="nav-item active" onclick="switchView('ponto', 'Ponto', this)">
+    <span class="nav-icon">🕐</span>
+    <span class="nav-label">Ponto</span>
+  </button>
+  <button class="nav-item" onclick="switchView('tarefas', 'Tarefas', this)">
+    <span class="nav-icon">📋</span>
+    <span class="nav-label">Tarefas</span>
+  </button>
+  <button class="nav-item" onclick="switchView('resumo', 'Resumo', this)">
+    <span class="nav-icon">📊</span>
+    <span class="nav-label">Resumo</span>
+  </button>
+  <button class="nav-item" onclick="switchView('config', 'Config', this)">
+    <span class="nav-icon">⚙️</span>
+    <span class="nav-label">Config</span>
+  </button>
+</nav>
+
+<div id="toast"></div>
+
+<div class="modal-backdrop" id="modal-export">
+  <div class="modal">
+    <h3>Exportar Registros</h3>
+    <textarea id="export-text" readonly></textarea>
+    <div class="modal-actions">
+      <button class="btn-copy" onclick="copiarExport()">Copiar tudo</button>
+      <button class="btn-close-modal" onclick="fecharExport()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── ARCHITECTURE: VIEW ROUTER ────────────────────────────
+  function switchView(viewId, badgeLabel, navElement) {
+    // Esconde todas as views
+    document.querySelectorAll('.app-view').forEach(view => {
+      view.classList.remove('active-view');
+    });
+    // Remove active state de todos os botões do nav
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.remove('active');
+    });
+    
+    // Ativa a view selecionada e o botão correspondente
+    document.getElementById(`view-${viewId}`).classList.add('active-view');
+    navElement.classList.add('active');
+    
+    // Atualiza o texto do cabeçalho
+    document.getElementById('current-module-badge').textContent = badgeLabel;
+  }
+
+  // ── STORAGE ──────────────────────────────────────────────
+  const STORAGE_KEY = 'centro_ponto_v1';
+
+  function carregarDados() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+    catch { return {}; }
+  }
+
+  function salvarDados(dados) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
+  }
+
+  // ── UTILIDADES ───────────────────────────────────────────
+  const DIAS_SEMANA = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const MESES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function agora() {
+    const d = new Date();
+    return {
+      data: `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`,
+      hora: `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`,
+      hhmm: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
+      ts:   d.getTime()
+    };
+  }
+
+  function formatarDataHumana(dataStr) {
+    const [y, m, d] = dataStr.split('-').map(Number);
+    const dt = new Date(y, m-1, d);
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const ontem = new Date(hoje); ontem.setDate(hoje.getDate()-1);
+    if (dt.getTime() === hoje.getTime()) return 'Hoje';
+    if (dt.getTime() === ontem.getTime()) return 'Ontem';
+    return `${DIAS_SEMANA[dt.getDay()]} , ${d} ${MESES[m-1]}`;
+  }
+
+  function calcularTotal(registros) {
+    const entradas = registros.filter(r => r.tipo === 'entrada').sort((a,b)=>a.hora.localeCompare(b.hora));
+    const saidas   = registros.filter(r => r.tipo === 'saida').sort((a,b)=>a.hora.localeCompare(b.hora));
+    let total = 0;
+    let i = 0, j = 0;
+    while (i < entradas.length && j < saidas.length) {
+      const e = entradas[i].hora, s = saidas[j].hora;
+      if (s > e) {
+        const [eh, em, es] = e.split(':').map(Number);
+        const [sh, sm, ss] = s.split(':').map(Number);
+        total += (sh*3600 + sm*60 + ss) - (eh*3600 + em*60 + es);
+        i++; j++;
+      } else { j++; }
+    }
+    if (total <= 0) return '';
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    return `${h}h${pad(m)}`;
+  }
+
+  // ── RELÓGIO ──────────────────────────────────────────────
+  function tickRelogio() {
+    const d = new Date();
+    document.getElementById('hh').textContent = pad(d.getHours());
+    document.getElementById('mm').textContent = pad(d.getMinutes());
+    document.getElementById('ss').textContent = pad(d.getSeconds());
+    document.getElementById('live-date').textContent =
+      `${DIAS_SEMANA[d.getDay()]}, ${d.getDate()} de ${['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'][d.getMonth()]} de ${d.getFullYear()}`;
+  }
+  tickRelogio();
+  setInterval(tickRelogio, 1000);
+
+  // ── BATER PONTO ─────────────────────────────────────────
+  function baterPonto(tipo) {
+    const { data, hora, hhmm } = agora();
+    const dados = carregarDados();
+    if (!dados[data]) dados[data] = [];
+    dados[data].push({ tipo, hora, ts: Date.now() });
+    salvarDados(dados);
+    renderizar();
+    toast(tipo === 'entrada' ? `Entrada registrada — ${hhmm}` : `Saída registrada — ${hhmm}`);
+  }
+
+  function deletarRegistro(data, idx) {
+    const dados = carregarDados();
+    if (dados[data]) {
+      dados[data].splice(idx, 1);
+      if (dados[data].length === 0) delete dados[data];
+      salvarDados(dados);
+      renderizar();
+    }
+  }
+
+  // ── RENDER ───────────────────────────────────────────────
+  function renderizar() {
+    const dados = carregarDados();
+    const hojeStr = agora().data;
+    const registrosHoje = dados[hojeStr] || [];
+
+    // Last ponto nos botões
+    const ents = registrosHoje.filter(r=>r.tipo==='entrada');
+    const sais = registrosHoje.filter(r=>r.tipo==='saida');
+    document.getElementById('last-entrada').textContent = ents.length ? ents[ents.length-1].hora.slice(0,5) : '--:--';
+    document.getElementById('last-saida').textContent   = sais.length ? sais[sais.length-1].hora.slice(0,5) : '--:--';
+
+    // Hoje
+    const listaHoje = document.getElementById('registros-hoje');
+    const totalHoje = document.getElementById('hoje-total');
+    listaHoje.innerHTML = '';
+    if (registrosHoje.length === 0) {
+      listaHoje.innerHTML = '<li class="empty-state">Nenhum registro ainda</li>';
+      totalHoje.textContent = '';
+    } else {
+      registrosHoje.forEach((r, i) => {
+        const li = document.createElement('li');
+        li.className = 'registro-item';
+        li.innerHTML = `
+          <div class="registro-left">
+            <span class="tipo-dot ${r.tipo}"></span>
+            <span class="tipo-label">${r.tipo === 'entrada' ? 'Entrada' : 'Saída'}</span>
+          </div>
+          <span class="registro-hora ${r.tipo}">${r.hora.slice(0,5)}</span>
+          <button class="btn-del" onclick="deletarRegistro('${hojeStr}',${i})" title="Remover">✕</button>
+        `;
+        listaHoje.appendChild(li);
+      });
+      const tot = calcularTotal(registrosHoje);
+      totalHoje.textContent = tot ? `${tot} trabalhadas` : '';
+    }
+
+    // Histórico (todos exceto hoje)
+    const container = document.getElementById('historico-container');
+    container.innerHTML = '';
+    const dias = Object.keys(dados).filter(d => d !== hojeStr).sort().reverse();
+    if (dias.length === 0) {
+      container.innerHTML = '<div style="padding:0 20px;font-size:13px;color:var(--muted)">Nenhum registro anterior</div>';
+      return;
+    }
+    dias.forEach(dia => {
+      const regs = dados[dia];
+      const card = document.createElement('div');
+      card.className = 'history-card';
+      const total = calcularTotal(regs);
+      const bodyId = `hist-${dia}`;
+      card.innerHTML = `
+        <div class="history-day-header" onclick="toggleDia('${bodyId}')">
+          <span class="day-label">${formatarDataHumana(dia)}</span>
+          <div class="day-meta">
+            ${total ? `<span class="day-total">${total}</span>` : ''}
+            <span class="chevron" id="chev-${bodyId}">▾</span>
+          </div>
+        </div>
+        <div class="history-day-body" id="${bodyId}">
+          <ul class="registros-list">
+            ${regs.map((r,i) => `
+              <li class="registro-item">
+                <div class="registro-left">
+                  <span class="tipo-dot ${r.tipo}"></span>
+                  <span class="tipo-label">${r.tipo === 'entrada' ? 'Entrada' : 'Saída'}</span>
+                </div>
+                <span class="registro-hora ${r.tipo}">${r.hora.slice(0,5)}</span>
+                <button class="btn-del" onclick="deletarRegistro('${dia}',${i})" title="Remover">✕</button>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function toggleDia(id) {
+    const body = document.getElementById(id);
+    const chev = document.getElementById('chev-' + id);
+    body.classList.toggle('open');
+    chev.classList.toggle('open');
+  }
+
+  // ── EXPORT ───────────────────────────────────────────────
+  function abrirExport() {
+    const dados = carregarDados();
+    const dias = Object.keys(dados).sort();
+    if (dias.length === 0) { toast('Nenhum dado para exportar'); return; }
+    let txt = '=== REGISTRO DE PONTO ===\n\n';
+    dias.forEach(dia => {
+      const regs = dados[dia];
+      const [y, m, d] = dia.split('-');
+      const dt = new Date(+y, +m-1, +d);
+      txt += `${DIAS_SEMANA[dt.getDay()]} ${d}/${m}/${y}\n`;
+      regs.forEach(r => {
+        txt += `  ${r.tipo === 'entrada' ? 'ENT' : 'SAI'}  ${r.hora.slice(0,5)}\n`;
+      });
+      const tot = calcularTotal(regs);
+      if (tot) txt += `  Total: ${tot}\n`;
+      txt += '\n';
+    });
+    document.getElementById('export-text').value = txt.trim();
+    document.getElementById('modal-export').classList.add('open');
+  }
+
+  function fecharExport() {
+    document.getElementById('modal-export').classList.remove('open');
+  }
+
+  function copiarExport() {
+    const txt = document.getElementById('export-text').value;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(txt).then(() => {
+        fecharExport();
+        toast('Copiado! Cole onde quiser.');
+      });
+    } else {
+      document.getElementById('export-text').select();
+      document.execCommand('copy');
+      fecharExport();
+      toast('Copiado!');
+    }
+  }
+
+  // Fechar modal clicando fora
+  document.getElementById('modal-export').addEventListener('click', function(e) {
+    if (e.target === this) fecharExport();
+  });
+
+  // ── TOAST ────────────────────────────────────────────────
+  let toastTimer;
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+  }
+
+  // ── INIT ─────────────────────────────────────────────────
+  renderizar();
+</script>
+</body>
+</html>
