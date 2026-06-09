@@ -112,21 +112,22 @@
     .conn-dot.online { background: var(--accent); }
     .conn-dot.offline { background: var(--warn); }
 
-    /* ── CLOCK HERO (FIX DE ALINHAMENTO E CENTRALIZAÇÃO SIMÉTRICA) ── */
+    /* ── CLOCK HERO (FIXED: SIMETRIA PURA SEM FLEXBOX) ── */
     .clock-block { padding: 28px 20px 20px; text-align: center; }
     .live-time {
-      font-family: var(--mono); font-size: clamp(52px, 16vw, 72px);
-      font-weight: 300; letter-spacing: -0.02em; color: var(--text); line-height: 1;
-      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); 
+      font-size: clamp(48px, 15vw, 68px); /* Reduzido levemente para evitar quebras em telas muito estreitas */
+      font-weight: 300; 
+      letter-spacing: -0.01em; 
+      color: var(--text); 
+      line-height: 1.1;
+      text-align: center;
     }
     .live-time .colon { 
       animation: blink 1s step-end infinite; 
-      display: inline-block; 
-      width: 0.3em; 
-      text-align: center; 
     }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.15} }
-    .live-date { margin-top: 12px; font-size: 13px; color: var(--muted); letter-spacing: 0.04em; }
+    .live-date { margin-top: 10px; font-size: 13px; color: var(--muted); letter-spacing: 0.04em; }
 
     /* ── ACTION BUTTON ── */
     .actions { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 0 20px 24px; }
@@ -144,7 +145,7 @@
     .btn-ponto .label  { font-size: 14px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
     .btn-ponto .sublabel { font-size: 11px; opacity: 0.75; font-family: var(--mono); }
 
-    /* ── CARDS (FIX DE ALINHAMENTO DA TABELA) ── */
+    /* ── CARDS ── */
     .today-card {
       margin: 0 20px 20px; background: var(--surface);
       border-radius: 16px; border: 1px solid var(--border); overflow: hidden;
@@ -714,7 +715,7 @@
     }
   }
 
-  // ── PONTO: DELETE (CORRIGIDO ESCOPO WINDOW) ─────────────────
+  // ── PONTO: DELETE ─────────────────────────────────────────
   window.deletarRegistro = async function(data, idx) {
     if (!usuarioAtual) return;
     const registro = (dadosApp[data] || [])[idx];
@@ -738,8 +739,8 @@
     input.focus();
 
     const tsLocal = Date.now();
-    const tarefasRef = ref(db, `usuarios/${usuarioAtual.uid}/tarefas`);
-    const novoRef    = push(tarefasRef);
+    const tareasRef = ref(db, `usuarios/${usuarioAtual.uid}/tarefas`);
+    const novoRef    = push(tareasRef);
 
     tarefasApp[novoRef.key] = { texto, ts: tsLocal };
     salvarCacheLocal();
@@ -835,7 +836,7 @@
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  // ── PONTO: RENDER (CORRIGIDO ERRO DE REFERÊNCIA LOCAL) ──────
+  // ── PONTO: RENDER ──────────────────────────────────────────
   function renderizar() {
     const timeData = hojeStr();
     const registrosHoje = dadosApp[timeData.iso] || [];
@@ -892,7 +893,6 @@
           <span class="registro-hora ${r.tipo}">${r.hora.slice(0,5)}</span>
           <button class="btn-del" title="Remover registro">✕</button>
         `;
-        // FIX: Chamando o método via escopo global explícito window
         li.querySelector('.btn-del').addEventListener('click', () => window.deletarRegistro(timeData.iso, i));
         listaHoje.appendChild(li);
       });
