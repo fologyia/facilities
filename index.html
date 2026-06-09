@@ -137,26 +137,35 @@
     .app-title { font-size: 11px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
     .module-badge { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); background: var(--accent-dim); padding: 3px 8px; border-radius: 20px; }
 
-    /* ── CLOCK HERO ── */
+    /* ── CLOCK HERO (CORRIGIDO E CENTRALIZADO) ── */
     .clock-block { padding: 28px 20px 20px; text-align: center; }
-    .live-time { font-family: var(--mono); font-size: clamp(52px, 18vw, 72px); font-weight: 300; letter-spacing: -0.02em; color: var(--text); line-height: 1; }
-    .live-time .colon { animation: blink 1s step-end infinite; display: inline-block; width: 0.3em; text-align: center; }
+    .live-time { 
+      font-family: var(--mono); 
+      font-size: clamp(52px, 16vw, 72px); 
+      font-weight: 300; 
+      letter-spacing: -0.02em; 
+      color: var(--text); 
+      line-height: 1;
+    }
+    .live-time .colon { 
+      animation: blink 1s step-end infinite; 
+    }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.15} }
     .live-date { margin-top: 8px; font-size: 13px; color: var(--muted); letter-spacing: 0.04em; }
 
-    /* ── ACTION BUTTONS ── */
-    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 20px 24px; }
+    /* ── ACTION BUTTONS (MÁQUINA DE ESTADO - BOTÃO ÚNICO) ── */
+    .actions { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 0 20px 24px; }
     .btn-ponto {
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 22px 16px; border: none; border-radius: 16px; cursor: pointer; font-family: var(--sans); transition: transform 0.1s, opacity 0.1s; -webkit-user-select: none; user-select: none;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 24px 16px; border: none; border-radius: 16px; cursor: pointer; font-family: var(--sans); transition: transform 0.1s, opacity 0.1s, background-color 0.2s; -webkit-user-select: none; user-select: none; width: 100%;
     }
-    .btn-ponto:active { transform: scale(0.95); opacity: 0.85; }
-    .btn-entrada { background: var(--accent); color: #000; }
-    .btn-saida { background: var(--exit); color: #fff; }
-    .btn-ponto .icon { font-size: 24px; line-height: 1; }
-    .btn-ponto .label { font-size: 13px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
-    .btn-ponto .sublabel { font-size: 11px; opacity: 0.65; font-family: var(--mono); }
+    .btn-ponto:active { transform: scale(0.97); opacity: 0.85; }
+    .btn-ponto.btn-entrada { background: var(--accent); color: #000; }
+    .btn-ponto.btn-saida { background: var(--exit); color: #fff; }
+    .btn-ponto .icon { font-size: 26px; line-height: 1; }
+    .btn-ponto .label { font-size: 14px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+    .btn-ponto .sublabel { font-size: 11px; opacity: 0.75; font-family: var(--mono); }
 
-    /* ── TODAY SUMMARY ── */
+    /* ── TODAY SUMMARY (CORRIGIDO E SIMÉTRICO) ── */
     .today-card { margin: 0 20px 20px; background: var(--surface); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
     .today-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border); }
     .today-title { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
@@ -164,12 +173,26 @@
     .registros-list { list-style: none; }
     .registro-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); gap: 10px; }
     .registro-item:last-child { border-bottom: none; }
-    .registro-left { display: flex; align-items: center; gap: 10px; }
+    
+    .registro-left { 
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+      flex: 1; 
+    }
     .tipo-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .tipo-dot.entrada { background: var(--accent); }
     .tipo-dot.saida   { background: var(--exit); }
     .tipo-label { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-    .registro-hora { font-family: var(--mono); font-size: 15px; font-weight: 600; }
+    
+    .registro-hora { 
+      font-family: var(--mono); 
+      font-size: 15px; 
+      font-weight: 600; 
+      min-width: 60px; 
+      text-align: right; 
+      margin-right: 4px;
+    }
     .registro-hora.entrada { color: var(--accent); }
     .registro-hora.saida   { color: var(--exit); }
     .btn-del { background: none; border: none; cursor: pointer; padding: 4px 6px; color: var(--muted); font-size: 16px; line-height: 1; border-radius: 6px; transition: color 0.15s, background 0.15s; }
@@ -250,15 +273,10 @@
     </div>
 
     <div class="actions">
-      <button class="btn-ponto btn-entrada" onclick="baterPonto('entrada')">
-        <span class="icon">→</span>
-        <span class="label">Entrada</span>
-        <span class="sublabel" id="last-entrada">--:--</span>
-      </button>
-      <button class="btn-ponto btn-saida" onclick="baterPonto('saida')">
-        <span class="icon">←</span>
-        <span class="label">Saída</span>
-        <span class="sublabel" id="last-saida">--:--</span>
+      <button id="btn-ponto-dinamico" class="btn-ponto btn-entrada">
+        <span class="icon" id="dinamico-icon">→</span>
+        <span class="label" id="dinamico-label">Carregando</span>
+        <span class="sublabel" id="dinamico-sublabel">Sincronizando estado...</span>
       </button>
     </div>
 
@@ -358,10 +376,18 @@
   const auth = getAuth(app);
 
   const STORAGE_KEY = 'centro_ponto_v2_logs';
-  let dadosApp = {}; // Mantém a estrutura de renderização agrupada por data { 'YYYY-MM-DD': [] }
+  let dadosApp = {}; 
   let usuarioLogadoId = null;
 
-  // ── NOVO PROCESSADOR DE MUTAÇÃO (SERVER TIMESTAMP INTEGRATED) ──
+  // ── MUDANÇA 2: SINCRONIZAÇÃO INICIAL AGRESSIVA (CACHE LOCAL FIRST) ──
+  function carregarCacheLocal() {
+    try { 
+      dadosApp = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; 
+    } catch { 
+      dadosApp = {}; 
+    }
+  }
+
   async function carregarEFiltrarDados() {
     if (!usuarioLogadoId) return;
     try {
@@ -371,14 +397,13 @@
       if (snapshot.exists()) {
         const logsRaw = snapshot.val();
         
-        // Converte objeto em lista ordenada de forma crescente por carimbo de data/hora
         const logsOrdenados = Object.keys(logsRaw).map(key => ({
           key: key,
           ...logsRaw[key]
         })).sort((a, b) => (a.ts || 0) - (b.ts || 0));
 
         logsOrdenados.forEach(item => {
-          if (!item.ts) return; // ignora valores transicionais nulos
+          if (!item.ts) return; 
           
           const d = new Date(item.ts);
           const dataStr = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -396,16 +421,18 @@
       dadosApp = dadosAgrupados;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(dadosApp));
     } catch (err) {
-      console.warn("Recuperando cache estrutural local offline.");
-      try { dadosApp = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
-      catch { dadosApp = {}; }
+      console.warn("Trabalhando em modo Offline. Exibindo dados do cache.");
     }
   }
 
-  // ── AUTHENTICATION LIFECYCLE (MITIGAÇÃO DE FLICKER) ──────────────────
+  // ── AUTHENTICATION LIFECYCLE (MITIGAÇÃO COMPLETA DE FLICKER) ──────────
   onAuthStateChanged(auth, async (user) => {
     const loginScreen = document.getElementById('login-screen');
     const splashScreen = document.getElementById('splash-screen');
+    
+    // Roda o carregamento do cache imediato para evitar telas vazias
+    carregarCacheLocal();
+    renderizar();
     
     if (user) {
       usuarioLogadoId = user.uid;
@@ -416,7 +443,6 @@
       usuarioLogadoId = null;
       loginScreen.style.display = 'flex';
     }
-    // Desativa o splash screen somente após resolver o estado completo da sessão
     splashScreen.style.display = 'none';
   });
 
@@ -468,7 +494,7 @@
     const ontem = new Date(hoje); ontem.setDate(hoje.getDate()-1);
     if (dt.getTime() === hoje.getTime()) return 'Hoje';
     if (dt.getTime() === ontem.getTime()) return 'Ontem';
-    return `${DIAS_SEMANA[dt.getDay()]}, ${d} ${MESES[m-1]}`;
+    return `${DIAS_SEMANA[dt.getDay()]} , ${d} ${MESES[m-1]}`;
   }
 
   function calcularTotal(registros) {
@@ -502,25 +528,28 @@
   tickRelogio();
   setInterval(tickRelogio, 1000);
 
-  // ── INTERACTION PUNCH ACTIONS (SERVER TIMESTAMP DRIVEN) ───
-  window.baterPonto = async function(tipo) {
+  // ── MUDANÇA 1: EVENT PUNCH (MÁQUINA DE ESTADOS DO BOTÃO ÚNICO) ───
+  window.baterPontoDinamico = async function(proximoTipo) {
     if (!usuarioLogadoId) return;
     try {
+      // Bloqueia clique duplo acidental mudando label imediatamente
+      document.getElementById('dinamico-label').textContent = 'Processando...';
+      
       const logsRef = ref(db, `usuarios/${usuarioLogadoId}/logs`);
       const novoPontoRef = push(logsRef);
       
-      // Envia exclusivamente o comando de geração temporal para os servidores do Firebase
       await set(novoPontoRef, {
-        tipo: tipo,
+        tipo: proximoTipo,
         ts: serverTimestamp()
       });
       
-      toast(`${tipo === 'entrada' ? 'Entrada' : 'Saída'} registrada com sucesso!`);
+      toast(`${proximoTipo === 'entrada' ? 'Entrada' : 'Saída'} registrada com relógio atômico!`);
       await carregarEFiltrarDados();
       renderizar();
     } catch (err) {
       console.error(err);
-      toast("Erro de gravação no banco remoto.");
+      toast("Erro ao conectar com o servidor.");
+      renderizar(); // Restaura estado visual do botão
     }
   }
 
@@ -535,22 +564,53 @@
           renderizar();
           toast("Registro removido.");
         } catch (err) {
-          toast("Erro ao tentar deletar da nuvem.");
+          toast("Erro ao deletar do servidor.");
         }
       }
     }
   }
 
-  // ── RENDERING RECONCILIATION ─────────────────────────────
+  // ── RECONCILIAÇÃO VISUAL (GERENCIADOR DE ESTADO DA INTERFACE) ──
   function renderizar() {
     const hojeStr = agora().data;
     const registrosHoje = dadosApp[hojeStr] || [];
 
-    const ents = registrosHoje.filter(r=>r.tipo==='entrada');
-    const sais = registrosHoje.filter(r=>r.tipo==='saida');
-    document.getElementById('last-entrada').textContent = ents.length ? ents[ents.length-1].hora.slice(0,5) : '--:--';
-    document.getElementById('last-saida').textContent   = sais.length ? sais[sais.length-1].hora.slice(0,5) : '--:--';
+    // ── CALCULO DE ESTADO ATÔMICO DO BOTÃO ──
+    let ultimoTipoGeral = 'saida';
+    let ultimoHorarioGeral = '--:--';
+    let maiorTsEncontrado = 0;
 
+    Object.keys(dadosApp).forEach(dia => {
+      dadosApp[dia].forEach(reg => {
+        if (reg.ts > maiorTsEncontrado) {
+          maiorTsEncontrado = reg.ts;
+          ultimoTipoGeral = reg.tipo;
+          ultimoHorarioGeral = reg.hora.slice(0, 5);
+        }
+      });
+    });
+
+    const btnDinamico = document.getElementById('btn-ponto-dinamico');
+    const labelDinamico = document.getElementById('dinamico-label');
+    const iconDinamico = document.getElementById('dinamico-icon');
+    const sublabelDinamico = document.getElementById('dinamico-sublabel');
+
+    // Transição de Estados (FSM)
+    if (ultimoTipoGeral === 'entrada') {
+      btnDinamico.className = 'btn-ponto btn-saida';
+      iconDinamico.textContent = '←';
+      labelDinamico.textContent = 'Registrar Saída';
+      sublabelDinamico.textContent = `Entrada realizada às ${ultimoHorarioGeral}`;
+      btnDinamico.onclick = () => window.baterPontoDinamico('saida');
+    } else {
+      btnDinamico.className = 'btn-ponto btn-entrada';
+      iconDinamico.textContent = '→';
+      labelDinamico.textContent = 'Registrar Entrada';
+      sublabelDinamico.textContent = maiorTsEncontrado ? `Última saída às ${ultimoHorarioGeral}` : 'Nenhum turno ativo';
+      btnDinamico.onclick = () => window.baterPontoDinamico('entrada');
+    }
+
+    // ── RENDER DA LISTA DE HOJE ──
     const listaHoje = document.getElementById('registros-hoje');
     const totalHoje = document.getElementById('hoje-total');
     listaHoje.innerHTML = '';
@@ -576,6 +636,7 @@
       totalHoje.textContent = tot ? `${tot} trabalhadas` : '';
     }
 
+    // ── RENDER DO HISTÓRICO ANTERIOR ──
     const container = document.getElementById('historico-container');
     container.innerHTML = '';
     const dias = Object.keys(dadosApp).filter(d => d !== hojeStr).sort().reverse();
